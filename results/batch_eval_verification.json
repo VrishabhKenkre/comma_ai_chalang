@@ -1,0 +1,36 @@
+{
+ "onnx_bitwise": true,
+ "pid:10000:500": {
+  "n": 500,
+  "max_abs_diff": {
+   "lataccel_cost": 0.0,
+   "jerk_cost": 0.0,
+   "total_cost": 0.0
+  },
+  "n_bitwise_equal_total": 500,
+  "mean_official": 110.52296278037261,
+  "mean_batch": 110.52296278037261
+ },
+ "pid_ff:10000:500": {
+  "n": 500,
+  "max_abs_diff": {
+   "lataccel_cost": 0.0,
+   "jerk_cost": 0.0,
+   "total_cost": 0.0
+  },
+  "n_bitwise_equal_total": 500,
+  "mean_official": 61.05036182765211,
+  "mean_batch": 61.05036182765211
+ },
+ "mpc:10000:500": {
+  "n": 500,
+  "max_abs_diff": {
+   "lataccel_cost": 0.0,
+   "jerk_cost": 0.0,
+   "total_cost": 0.0
+  },
+  "n_bitwise_equal_total": 500,
+  "mean_official": 54.30501604382762,
+  "mean_batch": 54.30501604382762
+ }
+}

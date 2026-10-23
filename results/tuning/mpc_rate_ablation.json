@@ -1,0 +1,89 @@
+{
+ "segs": "10000-10199",
+ "rows": [
+  {
+   "observer": true,
+   "w_du": 0.1,
+   "lataccel_cost": 3.4269115922589903,
+   "jerk_cost": 249.97041239591607,
+   "total_cost": 421.3159920088656
+  },
+  {
+   "observer": true,
+   "w_du": 0.5,
+   "lataccel_cost": 1.5052849617399011,
+   "jerk_cost": 104.84112304379016,
+   "total_cost": 180.10537113078522
+  },
+  {
+   "observer": true,
+   "w_du": 1.0,
+   "lataccel_cost": 0.7837937977790088,
+   "jerk_cost": 38.619291027816814,
+   "total_cost": 77.80898091676725
+  },
+  {
+   "observer": true,
+   "w_du": 2.0,
+   "lataccel_cost": 0.6115077638632682,
+   "jerk_cost": 22.12991187905176,
+   "total_cost": 52.70530007221518
+  },
+  {
+   "observer": true,
+   "w_du": 4.0,
+   "lataccel_cost": 0.6195919570058118,
+   "jerk_cost": 17.928788995859268,
+   "total_cost": 48.90838684614986
+  },
+  {
+   "observer": true,
+   "w_du": 8.0,
+   "lataccel_cost": 0.6996219808202392,
+   "jerk_cost": 16.065898505193683,
+   "total_cost": 51.04699754620564
+  },
+  {
+   "observer": false,
+   "w_du": 0.1,
+   "lataccel_cost": 2.2749676175686298,
+   "jerk_cost": 190.51746889289018,
+   "total_cost": 304.26584977132165
+  },
+  {
+   "observer": false,
+   "w_du": 0.5,
+   "lataccel_cost": 1.088531354546217,
+   "jerk_cost": 28.666788978142268,
+   "total_cost": 83.09335670545312
+  },
+  {
+   "observer": false,
+   "w_du": 1.0,
+   "lataccel_cost": 1.268526784566295,
+   "jerk_cost": 20.066202388369774,
+   "total_cost": 83.49254161668453
+  },
+  {
+   "observer": false,
+   "w_du": 2.0,
+   "lataccel_cost": 1.4112822263948237,
+   "jerk_cost": 17.55249022014103,
+   "total_cost": 88.11660153988221
+  },
+  {
+   "observer": false,
+   "w_du": 4.0,
+   "lataccel_cost": 1.5075671758512215,
+   "jerk_cost": 16.058131811508716,
+   "total_cost": 91.43649060406977
+  },
+  {
+   "observer": false,
+   "w_du": 8.0,
+   "lataccel_cost": 1.6331764126501755,
+   "jerk_cost": 15.011665211815561,
+   "total_cost": 96.67048584432436
+  }
+ ]
+}

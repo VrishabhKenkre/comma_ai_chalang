@@ -37,7 +37,7 @@ def main():
            "| segments | controller | n | lataccel_cost | jerk_cost | total_cost | ms/step | evaluator |",
            "|---|---|---:|---:|---:|---:|---:|---|"]
   for seg_range, name, n, la, jk, tot, ms, ev in rows:
-    ms_s = f"{ms:.2f}" if ms is not None else ""
+    ms_s = f"{ms:.3g}" if ms is not None else ""
     lines.append(f"| {seg_range} | {name} | {n} | {la:.3f} | {jk:.3f} | {tot:.3f} | {ms_s} | {ev} |")
   (ROOT / "results" / "RESULTS.md").write_text("\n".join(lines) + "\n")
   print("\n".join(lines))

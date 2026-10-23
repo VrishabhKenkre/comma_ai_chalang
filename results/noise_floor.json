@@ -1,0 +1,35 @@
+{
+ "segs": "10000-10099",
+ "summary": {
+  "pid_ff/stochastic": {
+   "lataccel_cost": 0.8035468596494526,
+   "jerk_cost": 18.702573784003103,
+   "total_cost": 58.87991676647574
+  },
+  "pid_ff/deterministic": {
+   "lataccel_cost": 0.6319299040199113,
+   "jerk_cost": 9.278627258552476,
+   "total_cost": 40.87512245954804
+  },
+  "mpc/stochastic": {
+   "lataccel_cost": 0.6031005545448148,
+   "jerk_cost": 17.513749012785585,
+   "total_cost": 47.66877674002633
+  },
+  "mpc/deterministic": {
+   "lataccel_cost": 0.3906189079826055,
+   "jerk_cost": 7.663780862552078,
+   "total_cost": 27.194726261682355
+  },
+  "ilqr/stochastic": {
+   "lataccel_cost": 0.39815108858734755,
+   "jerk_cost": 16.93407792243234,
+   "total_cost": 36.84163235179971
+  },
+  "ilqr/deterministic": {
+   "lataccel_cost": 0.16243767109910126,
+   "jerk_cost": 4.542550566927088,
+   "total_cost": 12.66443412188215
+  }
+ }
+}
