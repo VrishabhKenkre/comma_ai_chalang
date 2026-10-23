@@ -109,3 +109,10 @@ class TinyPhysicsTorch(torch.nn.Module):
     """E[lataccel_t | context] at the last position, temperature 0.8 like the simulator."""
     p = (self.logits(states, past_y, soft_tokens)[:, -1] / TEMPERATURE).softmax(-1)
     return p @ self.bins
+
+  def mean_std(self, states, past_y, soft_tokens=False):
+    """Mean and standard deviation of the predicted lataccel distribution (exact, over the bins)."""
+    p = (self.logits(states, past_y, soft_tokens)[:, -1] / TEMPERATURE).softmax(-1)
+    mean = p @ self.bins
+    var = (p * (self.bins - mean[:, None]) ** 2).sum(-1)
+    return mean, torch.sqrt(var + 1e-12)

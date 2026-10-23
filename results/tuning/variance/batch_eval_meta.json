@@ -1,0 +1,135 @@
+{
+ "rs_ilqr_v1.5_w2_10000-10199.csv": {
+  "ctrl": "ilqr",
+  "params": {
+   "H": 12,
+   "iters": 1,
+   "w_du": 2.0,
+   "shifts": [
+    -0.3,
+    -0.1,
+    0.1,
+    0.3
+   ],
+   "var_weight": 1.5
+  },
+  "evaluator": "ctrl/batch_eval.py (lockstep, GPU controller)",
+  "deterministic_plant": false,
+  "wall_s": 456.26974058151245,
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "rs_ilqr_v3_w2_10000-10199.csv": {
+  "ctrl": "ilqr",
+  "params": {
+   "H": 12,
+   "iters": 1,
+   "w_du": 2.0,
+   "shifts": [
+    -0.3,
+    -0.1,
+    0.1,
+    0.3
+   ],
+   "var_weight": 3.0
+  },
+  "evaluator": "ctrl/batch_eval.py (lockstep, GPU controller)",
+  "deterministic_plant": false,
+  "wall_s": 470.2126350402832,
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "rs_ilqr_v0.75_w2_10000-10199.csv": {
+  "ctrl": "ilqr",
+  "params": {
+   "H": 12,
+   "iters": 1,
+   "w_du": 2.0,
+   "shifts": [
+    -0.3,
+    -0.1,
+    0.1,
+    0.3
+   ],
+   "var_weight": 0.75
+  },
+  "evaluator": "ctrl/batch_eval.py (lockstep, GPU controller)",
+  "deterministic_plant": false,
+  "wall_s": 491.11558961868286,
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "rs_ilqr_v1.5_w1_10000-10199.csv": {
+  "ctrl": "ilqr",
+  "params": {
+   "H": 12,
+   "iters": 1,
+   "w_du": 1.0,
+   "shifts": [
+    -0.3,
+    -0.1,
+    0.1,
+    0.3
+   ],
+   "var_weight": 1.5
+  },
+  "evaluator": "ctrl/batch_eval.py (lockstep, GPU controller)",
+  "deterministic_plant": false,
+  "wall_s": 598.0309164524078,
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "lookahead_d0_10000-10199.csv": {
+  "ctrl": "lookahead",
+  "params": {
+   "d": 0,
+   "w_du": 2.0
+  },
+  "evaluator": "ctrl/batch_eval.py (lockstep, GPU controller)",
+  "deterministic_plant": false,
+  "wall_s": 461.8052644729614,
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "lookahead_d3_10000-10199.csv": {
+  "ctrl": "lookahead",
+  "params": {
+   "d": 3,
+   "w_du": 2.0
+  },
+  "evaluator": "ctrl/batch_eval.py (lockstep, GPU controller)",
+  "deterministic_plant": false,
+  "wall_s": 546.5641164779663,
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "mppi_v1.5_10000-10199.csv": {
+  "ctrl": "mppi",
+  "params": {
+   "var_weight": 1.5
+  },
+  "evaluator": "ctrl/batch_eval.py (lockstep, GPU controller)",
+  "deterministic_plant": false,
+  "wall_s": 825.5178318023682,
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "mppi_v0_10000-10199.csv": {
+  "ctrl": "mppi",
+  "params": {
+   "var_weight": 0.0
+  },
+  "evaluator": "ctrl/batch_eval.py (lockstep, GPU controller)",
+  "deterministic_plant": false,
+  "wall_s": 798.9216289520264,
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "mppi_ramp_v1.5_10000-10199.csv": {
+  "ctrl": "mppi",
+  "params": {
+   "var_weight": 1.5,
+   "noise": "ramp",
+   "n_samples": 128,
+   "noise_std": 0.1,
+   "lam": 0.01,
+   "iters": 2
+  },
+  "evaluator": "ctrl/batch_eval.py (lockstep, GPU controller)",
+  "deterministic_plant": false,
+  "wall_s": 1538.040973186493,
+  "device": "NVIDIA GeForce RTX 5090"
+ }
+}

@@ -277,6 +277,39 @@ correction `k` to the roll -> lataccel gain, both random walks; measurement row
   test set was not untouched. The fix is generic (it only acts at saturation) and was
   validated without test data. Both test numbers are kept in `results/runs/`.
 
+## Research branch (`research-optimization`)
+
+Same honesty rules. Everything was developed and tuned on dev segments, and each final method
+was run once on the test set. Full numbers: [results/variance/VARIANCE.md](results/variance/VARIANCE.md),
+[results/pwa/](results/pwa/), [results/hybrid/](results/hybrid/), [results/ABLATION.md](results/ABLATION.md).
+
+### Step 1: variance-aware control
+
+About two thirds of the iLQR's cost is the simulator's sampling noise. So the first
+question was whether steering can make the predicted distribution narrower.
+
+- **Measurement (`scripts/variance_vs_action.py`).** At 9,900 operating points from the iLQR's
+  own dev runs, we held the past fixed and changed the steer from step t on by delta. Then we
+  read the std and entropy of the predicted distribution over the 1024 bins, 0-4 steps ahead.
+  The spread is **V-shaped in the steer change**. It is lowest when the steer is held and grows
+  fast with any step: a 0.3 step roughly triples the std two steps later. y(t) itself does not
+  react (the delay). So the action does change the spread, but mostly upward. Around the
+  iLQR's own smooth steering, the best achievable variance reduction is only 2-4% on average
+  (median 0%).
+- **Risk-sensitive iLQR (`controllers/ilqr_rs.py`).** The iLQR's planned cost now includes
+  1.5 * sigma_k^2 per step, with sigma_k the model's exact predicted std. In our units that
+  makes each step's cost the exact one-step expectation of the score; 1.5 is not a tuned
+  weight. sigma enters the Gauss-Newton backward pass as a least-squares residual, with its
+  gradient from autograd. Result: dev 500 **-0.27 +- 0.06**, test 5000 **-0.36 +- 0.05**
+  (paired differences vs the final iLQR). Test: 40.23 vs 40.59, better on 3,085 of 5,000
+  segments. It is real and small. On the noise-floor segments it removes 0.8% of the iLQR's
+  noise cost.
+- **Negative results.** An exact expected-cost *one-step* lookahead fails completely (11,412
+  on dev). Because of the 3-step delay, the next lataccel barely depends on the current steer.
+  Looking 3 steps ahead with one held steer value is still poor (326). MPPI with independent
+  per-step perturbations failed (1,649) because its averaged plans are jittery. With smooth
+  ramp perturbations it works (39.09 on dev 10000-10199), but it stays 2.2 +- 0.2 behind iLQR.
+
 ## Leaderboard context
 
 From [comma.ai/leaderboard](https://comma.ai/leaderboard) (archived challenge, read

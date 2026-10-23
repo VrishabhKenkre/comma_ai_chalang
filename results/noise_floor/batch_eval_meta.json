@@ -1,0 +1,40 @@
+{
+ "ilqr_rs_stochastic_10000-10099.csv": {
+  "ctrl": "ilqr",
+  "params": {
+   "H": 12,
+   "iters": 1,
+   "w_du": 2.0,
+   "shifts": [
+    -0.3,
+    -0.1,
+    0.1,
+    0.3
+   ],
+   "var_weight": 1.5
+  },
+  "evaluator": "ctrl/batch_eval.py (lockstep, GPU controller)",
+  "deterministic_plant": false,
+  "wall_s": 385.0571722984314,
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "ilqr_rs_deterministic_10000-10099.csv": {
+  "ctrl": "ilqr",
+  "params": {
+   "H": 12,
+   "iters": 1,
+   "w_du": 2.0,
+   "shifts": [
+    -0.3,
+    -0.1,
+    0.1,
+    0.3
+   ],
+   "var_weight": 1.5
+  },
+  "evaluator": "ctrl/batch_eval.py (lockstep, GPU controller)",
+  "deterministic_plant": true,
+  "wall_s": 482.71984004974365,
+  "device": "NVIDIA GeForce RTX 5090"
+ }
+}

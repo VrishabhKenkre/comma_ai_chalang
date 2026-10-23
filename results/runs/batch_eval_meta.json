@@ -52,5 +52,43 @@
   "evaluator": "ctrl/batch_eval.py (lockstep, GPU controller)",
   "wall_s": 2358.7536392211914,
   "device": "NVIDIA GeForce RTX 5090"
+ },
+ "ilqr_rs_10000-10499.csv": {
+  "ctrl": "ilqr",
+  "params": {
+   "H": 12,
+   "iters": 1,
+   "w_du": 2.0,
+   "shifts": [
+    -0.3,
+    -0.1,
+    0.1,
+    0.3
+   ],
+   "var_weight": 1.5
+  },
+  "evaluator": "ctrl/batch_eval.py (lockstep, GPU controller)",
+  "deterministic_plant": false,
+  "wall_s": 1651.0544619560242,
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "ilqr_rs_00000-04999.csv": {
+  "ctrl": "ilqr",
+  "params": {
+   "H": 12,
+   "iters": 1,
+   "w_du": 2.0,
+   "shifts": [
+    -0.3,
+    -0.1,
+    0.1,
+    0.3
+   ],
+   "var_weight": 1.5
+  },
+  "evaluator": "ctrl/batch_eval.py (lockstep, GPU controller)",
+  "deterministic_plant": false,
+  "wall_s": 4782.3864941596985,
+  "device": "NVIDIA GeForce RTX 5090"
  }
 }
