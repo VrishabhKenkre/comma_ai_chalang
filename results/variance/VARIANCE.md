@@ -32,6 +32,7 @@ Reference: final iLQR on the same segments, total 36.858. Paired difference = me
 | MPPI, iid perturbations, with variance term | 31.680 | 64.816 | 1648.792 | 182.01 | +1611.934 +- 338.186 |
 | MPPI, iid perturbations, no variance term | 30.385 | 66.447 | 1585.704 | 171.37 | +1548.846 +- 385.666 |
 | MPPI, ramp perturbations, 128 samples, 2 iterations, with variance term | 0.427 | 17.747 | 39.087 | 39.39 | +2.228 +- 0.242 |
+| MPPI, ramp perturbations, 128 samples, 2 iterations, no variance term | 0.453 | 18.227 | 40.894 | 40.59 | +4.036 +- 0.352 |
 
 ## 1c. How much of the noise floor does it remove? (dev 10000-10099)
 

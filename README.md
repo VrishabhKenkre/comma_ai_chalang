@@ -12,9 +12,10 @@ through the simulator's own model. Every controller is causal and uses only what
 |---|---:|
 | PID (upstream baseline) | 110.25 |
 | PID + preview feedforward, 7 parameters tuned once (Nelder-Mead) | 63.64 |
-| PID + preview feedforward, 10 parameters tuned once (CMA-ES): the strong baseline | 60.42 |
+| PID + preview feedforward, 10 parameters tuned once (CMA-ES): the strong baseline | 60.41 |
 | Preview MPC on an identified ARX model + Kalman disturbance observer (OSQP or ADMM) | 57.44 / 57.40 |
 | Receding-horizon iLQR through the TinyPhysics model (expected value) | **40.59** (official eval.py: 40.54) |
+| Same iLQR, risk-sensitive: exact predicted variance in the cost (research branch) | **40.23** |
 
 The linear MPC beats our strongest PID+FF (60.4) but not the best PID+FF on the leaderboard (50.6). The
 iLQR beats the ~48 of the best feedback-style entries, but it uses the simulator's own
@@ -194,7 +195,7 @@ used CMA-ES to tune "6 parameters of a custom feedback controller" and reports a
 48.0. It reports no PID+FF number. The search started at the Nelder-Mead controller and
 used dev 10000-10199. The final pick (the CMA-ES mean) was made on dev 10200-10499, which
 the search never saw: 61.06 there, against 64.57 for the start point. Results: dev 58.12,
-test **60.42** (vs 63.64). That is about 10 points behind the leaderboard's best PID+FF
+test **60.41** (vs 63.64). That is about 10 points behind the leaderboard's best PID+FF
 (50.6, "PID w FF"). We do not know that entry's structure, so we cannot say what it does
 differently.
 
@@ -292,7 +293,7 @@ question was whether steering can make the predicted distribution narrower.
   own dev runs, we held the past fixed and changed the steer from step t on by delta. Then we
   read the std and entropy of the predicted distribution over the 1024 bins, 0-4 steps ahead.
   The spread is **V-shaped in the steer change**. It is lowest when the steer is held and grows
-  fast with any step: a 0.3 step roughly triples the std two steps later. y(t) itself does not
+  fast with any step: two steps later the std is about 1.4x larger after a 0.1 step and about 4x larger after a 0.3 step. y(t) itself does not
   react (the delay). So the action does change the spread, but mostly upward. Around the
   iLQR's own smooth steering, the best achievable variance reduction is only 2-4% on average
   (median 0%).
@@ -309,6 +310,10 @@ question was whether steering can make the predicted distribution narrower.
   Looking 3 steps ahead with one held steer value is still poor (326). MPPI with independent
   per-step perturbations failed (1,649) because its averaged plans are jittery. With smooth
   ramp perturbations it works (39.09 on dev 10000-10199), but it stays 2.2 +- 0.2 behind iLQR.
+  Inside MPPI the variance term matters much more than inside iLQR. Without it the same MPPI
+  scores 40.89, a paired difference of 1.81 +- 0.18 (better with it on 175 of 200 segments).
+  A plausible reading is that sampled plans contain more variance-inducing steer changes than
+  iLQR's smooth solutions, and the variance term filters them out.
 
 ### Step 2: piecewise-affine model and hybrid MPC with Graphs of Convex Sets
 
@@ -378,16 +383,28 @@ and the 50.6 of the best PID+FF, but it knows more than they do (the exact mean 
   matches the per-segment CPU controller only statistically (float differences).
 - Segment lengths vary (576-602 rows); system ID truncated runs to 596 steps. Scoring always
   uses the official steps 100-499.
+- Research branch: the expensive experiments used fewer dev segments (200 for the variance
+  controllers, 32 for the hybrid MPC). Each row in `results/ABLATION.md` is compared with
+  iLQR and linear MPC on the same segments. Only the final methods were run on test. The
+  hybrid MPC was not, because it is too slow (about 400 CPU-hours) and not competitive on dev.
+- The PWA model is discontinuous at region boundaries. We did not try a continuous one, which
+  is the obvious next experiment for the hybrid MPC.
 
 ## Repository layout
 
 ```
-controllers/   pid_ff.py, lqr.py, mpc.py, mpc_noobs.py, mpc_admm.py, ilqr.py (+ upstream pid/zero)
+controllers/   pid_ff.py, pid_ff_cma.py, lqr.py, mpc.py, mpc_noobs.py, mpc_admm.py, ilqr.py,
+               ilqr_rs.py, lookahead3.py, mppi.py, hybrid_gcs.py (+ upstream pid/zero)
 ctrl/          torch_model.py (PyTorch port), arx.py, observer.py, mpc.py (OSQP + ADMM),
-               arx_controller.py, ilqr.py, batch_eval.py (lockstep evaluator), evaluate.py
+               arx_controller.py, ilqr.py, batch_eval.py (lockstep evaluator), evaluate.py,
+               variance_ctrl.py (lookahead, MPPI), pwa.py (model tree), hybrid_mpc.py (GCS + MIQP),
+               batch_wrap.py
 scripts/       run_eval.py, run_batch_eval.py, verify_batch_eval.py, sysid.py, sysid_closed_loop.py,
-               tune_pid_ff.py, tune_ilqr.py, compare_solvers.py, time_controllers.py,
-               noise_floor.py, plot_segments.py, make_table.py
-results/       runs/*.csv (one row per segment), RESULTS.md, sysid/, tuning/, stress/, reports/
-docs/          UPSTREAM_README.md, WRITEUP.md (one page)
+               tune_pid_ff.py, tune_pid_ff_cma.py, tune_ilqr.py, compare_solvers.py,
+               time_controllers.py, noise_floor.py, plot_segments.py, make_table.py,
+               variance_vs_action.py, summarize_variance.py, fit_pwa.py, run_hybrid.py,
+               diagnose_hybrid.py, summarize_hybrid.py, make_ablation.py
+results/       runs/*.csv (one row per segment), RESULTS.md, ABLATION.md, sysid/, tuning/, stress/,
+               reports/, variance/, pwa/, hybrid/, noise_floor/
+docs/          UPSTREAM_README.md, WRITEUP.md
 ```

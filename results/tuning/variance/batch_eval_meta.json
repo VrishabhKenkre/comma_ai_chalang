@@ -131,5 +131,20 @@
   "deterministic_plant": false,
   "wall_s": 1538.040973186493,
   "device": "NVIDIA GeForce RTX 5090"
+ },
+ "mppi_ramp_v0_10000-10199.csv": {
+  "ctrl": "mppi",
+  "params": {
+   "var_weight": 0.0,
+   "noise": "ramp",
+   "n_samples": 128,
+   "noise_std": 0.1,
+   "lam": 0.01,
+   "iters": 2
+  },
+  "evaluator": "ctrl/batch_eval.py (lockstep, GPU controller)",
+  "deterministic_plant": false,
+  "wall_s": 1328.8373222351074,
+  "device": "NVIDIA GeForce RTX 5090"
  }
 }
