@@ -39,7 +39,8 @@ Additional rules we followed so the numbers mean what they say:
 
 - **Train / dev / test split.** Tuning used dev segments 10000-10199 (reported dev
   numbers on 10000-10499). System identification used 15000-15399. The test set
-  00000-04999 was only used for final numbers, never for choices.
+  00000-04999 was only used for final numbers, never for choices, with one exception: the
+  iLQR's saturation search was added after its first test run (see "The iLQR blow-ups").
 - **What the controller knows about the simulator interface.** It counts its own
   `update()` calls, so it knows that its output is ignored before step 100
   (`CONTROL_START_IDX`). A car controller likewise knows when it is engaged. During those
@@ -57,7 +58,7 @@ Additional rules we followed so the numbers mean what they say:
 ```bash
 uv venv --python 3.11 .venv
 uv pip install --python .venv/bin/python -r requirements-project.txt   # torch: see the file
-# dataset (same as tinyphysics.py downloads): data/00000.csv ... data/19999.csv
+# dataset: running tinyphysics.py once downloads it into data/ (00000.csv ... 19999.csv)
 
 # official harness, one process per segment (unmodified tinyphysics.py)
 .venv/bin/python scripts/run_eval.py --controller mpc --num_segs 5000
@@ -65,7 +66,8 @@ uv pip install --python .venv/bin/python -r requirements-project.txt   # torch: 
     --test_controller mpc --baseline_controller pid
 
 # iLQR on the GPU through the lockstep evaluator (exactness check: scripts/verify_batch_eval.py)
-.venv/bin/python scripts/run_batch_eval.py --start 0 --num_segs 5000 --H 12 --iters 1 --w_du 2.0 --name ilqr
+.venv/bin/python scripts/run_batch_eval.py --start 0 --num_segs 5000 --H 12 --iters 1 --w_du 2.0 \
+    --shifts -0.3 -0.1 0.1 0.3 --name ilqr
 
 .venv/bin/python scripts/make_table.py      # rebuilds results/RESULTS.md from results/runs/*.csv
 ```
@@ -110,15 +112,15 @@ Notes on the table:
   its steer-rate weight without the observer gives at best 83.1 on dev segments
   10000-10199, vs 48.9 with the observer (`results/tuning/mpc_rate_ablation.json`), so the
   gap is not a tuning artifact.
-- **ADMM** solves the same QP as OSQP; the 0.03 difference is the solvers' 1e-5
-  disagreement amplified by the simulator's sampling (a tiny change in steer changes which
-  token is drawn later).
+- **ADMM** solves the same QP as OSQP. The 0.03 difference is consistent with the solvers'
+  ~1e-5 disagreement, because any tiny change in steer can change which token is drawn later.
 - **iLQR** rows were run with the lockstep GPU evaluator (exactness argued below).
 
 ### What the numbers say
 
 1. **Preview is the biggest lever.** The car responds to steer with about 3 steps (0.3 s)
-   of delay. Feedforward on the planned target 2-4 steps ahead takes PID from 110 to 64.
+   of delay. PID plus feedforward on the planned target 2-4 steps ahead (gains retuned)
+   scores 64, against 110 for PID.
    Removing the preview from the model-based controller (LQR) costs ~42 points.
 2. **The better the controller, the more of its cost is the simulator's sampling noise.**
    On dev segments 10000-10099 we replaced the random token draw by the token nearest the
@@ -133,9 +135,10 @@ Notes on the table:
    but did not improve the best setting. The linear MPC ends at 57.4. That is better than our
    PID+FF (63.6) but not better than the best PID+FF on the leaderboard (50.6).
 4. **The observer must be parametrized as an output offset.** With the ARX's ~0.95
-   autoregressive coefficient, a bias placed inside the ARX equation acts ~20x in steady
-   state and destabilized the loop; as an output offset it is the single most valuable
-   addition to the MPC (99.5 -> 57.4).
+   autoregressive coefficient, a bias placed inside the ARX equation acts 1/(1 - 0.95) ≈ 20x
+   in steady state. In our first implementation that made the closed loop unstable (a
+   development run, not kept). As an output offset it is the single most valuable addition
+   to the MPC (99.5 -> 57.4 on test).
 5. **With the simulator's own (mean) model, iLQR is much better.** It scores 40.59 on test.
    Tracking error is 0.438 vs 0.734 for the linear MPC, at lower jerk, and it beats the MPC
    on 4,662 of the 5,000 segments. The price is compute: about 65 ms per step vs 0.4 ms.

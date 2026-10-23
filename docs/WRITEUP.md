@@ -38,8 +38,8 @@ segment. Tuning used held-out dev segments only. Repo: `<link>`.
   its cost is noise. The figure is 31% for PID+FF. Preview matters most: the car has about
   3 steps of delay.
 - The ARX is accurate only for smooth steering. The MPC needs a large steer-rate weight, and
-  the observer has to be an *output* offset (inside an ARX with a ≈ 0.95 it acts about 20x
-  and destabilises the loop).
+  the observer has to be an *output* offset. Inside an ARX with a ≈ 0.95 a bias acts about
+  20x, and in my first version it destabilised the loop.
 - The first iLQR test run scored 58.19. Two of the 5000 segments locked at full steer
   (one at 84,143). I reproduced the failure on non-test high-lateral-acceleration segments,
   fixed it there, and re-ran the test once. Only 7 test segments changed. Both numbers are
