@@ -288,7 +288,7 @@ was run once on the test set. Full numbers: [results/variance/VARIANCE.md](resul
 About two thirds of the iLQR's cost is the simulator's sampling noise. So the first
 question was whether steering can make the predicted distribution narrower.
 
-- **Measurement (`scripts/variance_vs_action.py`).** At 9,900 operating points from the iLQR's
+- **Measurement (`scripts/variance_vs_action.py`).** At 10,000 operating points from the iLQR's
   own dev runs, we held the past fixed and changed the steer from step t on by delta. Then we
   read the std and entropy of the predicted distribution over the 1024 bins, 0-4 steps ahead.
   The spread is **V-shaped in the steer change**. It is lowest when the steer is held and grows
@@ -309,6 +309,38 @@ question was whether steering can make the predicted distribution narrower.
   Looking 3 steps ahead with one held steer value is still poor (326). MPPI with independent
   per-step perturbations failed (1,649) because its averaged plans are jittery. With smooth
   ramp perturbations it works (39.09 on dev 10000-10199), but it stays 2.2 +- 0.2 behind iLQR.
+
+### Step 2: piecewise-affine model and hybrid MPC with Graphs of Convex Sets
+
+Details: [results/hybrid/HYBRID.md](results/hybrid/HYBRID.md).
+
+- **PWA model (`ctrl/pwa.py`, `scripts/fit_pwa.py`).** A greedy model tree: box regions over
+  (v, a, roll, current lataccel, steer), each with an affine ARX fitted to the network's
+  expected output. The data chose steer and lataccel splits first, not speed. Restricted to
+  8 regions on (lataccel, steer), the 20-step free-run error on held-out PID+FF-driven data
+  is 0.108 m/s^2. The speed-binned linear model gets 0.124 and one global ARX 0.135. On
+  MPC-driven data it equals the speed-binned model (0.1285 vs 0.1281). This is a modest gain
+  in fit.
+- **Hybrid MPC (`ctrl/hybrid_mpc.py`).** The graph has one vertex per (step, region), holding
+  that step's state and steer inside the region box. Each region has its own affine dynamics,
+  and the stage cost is the official cost. It is solved with Drake's GCS convex relaxation
+  (Clarabel) plus rounding: Drake's randomized rounding, simulating the PWA model under the
+  relaxation's flow-weighted steer, and the previous solution shifted.
+- **Relaxation gap, against an exact mixed-integer solve** (SCIP, 200 real problems, all
+  solved to optimality). The relaxation's lower bound sits a median **41% below** the true
+  optimum, so it is loose. The rounded solution is still the exact optimum on the median
+  problem, within 1% on 80% of problems and 4.7% above on average. Most of that came from
+  forward-simulation rounding. GCS took 5 s per problem and the MIQP 22 s (both under load).
+- **Closed loop (32 dev segments).** It is worse than the linear MPC: median segment +2.5,
+  worse on 27 of 32 segments, and the mean is 318 because of blow-ups (one segment at 8,436).
+  On that segment the steer sat on one of the tree's steer thresholds (u = -0.830) for 162 of
+  400 scored steps while the error stayed above 1 m/s^2. Our reading is that the
+  discontinuities between neighbouring affine models create spurious optima on region
+  boundaries. A continuous PWA model would test this; we did not build one. Getting there
+  needed two bug fixes in our own controller (history bounds and a failure fallback), checked
+  by giving the hybrid code the linear MPC's own model: 49.41 vs 49.47.
+- **Speed.** 597 ms per step on one thread, 6x over the 100 ms budget. No test run: about 400
+  CPU-hours, and not competitive on dev.
 
 ## Leaderboard context
 

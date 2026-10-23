@@ -1,0 +1,277 @@
+{
+ "global ARX (1 region)": {
+  "splits": [],
+  "PID+FF regime": {
+   "one_step_rmse": 0.051427192214393985,
+   "free_run_rmse": 0.13501398543686416
+  },
+  "MPC regime": {
+   "one_step_rmse": 0.06835495408904138,
+   "free_run_rmse": 0.13422370648917092
+  }
+ },
+ "speed-binned ARX (8 regions)": {
+  "splits": [],
+  "PID+FF regime": {
+   "one_step_rmse": 0.04926123611091838,
+   "free_run_rmse": 0.124144096350944
+  },
+  "MPC regime": {
+   "one_step_rmse": 0.0661162705772639,
+   "free_run_rmse": 0.12808001553789725
+  }
+ },
+ "PWA tree, 2 regions": {
+  "splits": [
+   {
+    "feature": "u",
+    "threshold": -0.12163688425054187,
+    "sse_reduction": 136.94849469013525
+   }
+  ],
+  "PID+FF regime": {
+   "one_step_rmse": 0.05019722913655825,
+   "free_run_rmse": 0.13226817480306496
+  },
+  "MPC regime": {
+   "one_step_rmse": 0.06729331490054571,
+   "free_run_rmse": 0.1370645481931907
+  }
+ },
+ "PWA tree, 4 regions": {
+  "splits": [
+   {
+    "feature": "u",
+    "threshold": -0.12163688425054187,
+    "sse_reduction": 136.94849469013525
+   },
+   {
+    "feature": "u",
+    "threshold": 0.30934229723576273,
+    "sse_reduction": 37.59906154474044
+   },
+   {
+    "feature": "y_prev",
+    "threshold": 1.8914956011730206,
+    "sse_reduction": 46.86978253117087
+   }
+  ],
+  "PID+FF regime": {
+   "one_step_rmse": 0.049232528279054444,
+   "free_run_rmse": 0.13064608850054898
+  },
+  "MPC regime": {
+   "one_step_rmse": 0.06588513684984006,
+   "free_run_rmse": 0.13672031954545585
+  }
+ },
+ "PWA tree, 8 regions": {
+  "splits": [
+   {
+    "feature": "u",
+    "threshold": -0.12163688425054187,
+    "sse_reduction": 136.94849469013525
+   },
+   {
+    "feature": "u",
+    "threshold": 0.30934229723576273,
+    "sse_reduction": 37.59906154474044
+   },
+   {
+    "feature": "y_prev",
+    "threshold": 1.8914956011730206,
+    "sse_reduction": 46.86978253117087
+   },
+   {
+    "feature": "v_ego",
+    "threshold": 30.249169592118424,
+    "sse_reduction": 33.7315787216682
+   },
+   {
+    "feature": "v_ego",
+    "threshold": 29.404987652241736,
+    "sse_reduction": 27.199033963070292
+   },
+   {
+    "feature": "y_prev",
+    "threshold": -0.48387096774193505,
+    "sse_reduction": 16.215897175981468
+   },
+   {
+    "feature": "roll",
+    "threshold": 0.10138856359169773,
+    "sse_reduction": 11.723168733783993
+   }
+  ],
+  "PID+FF regime": {
+   "one_step_rmse": 0.04824563776535218,
+   "free_run_rmse": 0.12491892595666095
+  },
+  "MPC regime": {
+   "one_step_rmse": 0.0647967122423376,
+   "free_run_rmse": 0.1339840012176801
+  }
+ },
+ "PWA tree, 16 regions": {
+  "splits": [
+   {
+    "feature": "u",
+    "threshold": -0.12163688425054187,
+    "sse_reduction": 136.94849469013525
+   },
+   {
+    "feature": "u",
+    "threshold": 0.30934229723576273,
+    "sse_reduction": 37.59906154474044
+   },
+   {
+    "feature": "y_prev",
+    "threshold": 1.8914956011730206,
+    "sse_reduction": 46.86978253117087
+   },
+   {
+    "feature": "v_ego",
+    "threshold": 30.249169592118424,
+    "sse_reduction": 33.7315787216682
+   },
+   {
+    "feature": "v_ego",
+    "threshold": 29.404987652241736,
+    "sse_reduction": 27.199033963070292
+   },
+   {
+    "feature": "y_prev",
+    "threshold": -0.48387096774193505,
+    "sse_reduction": 16.215897175981468
+   },
+   {
+    "feature": "roll",
+    "threshold": 0.10138856359169773,
+    "sse_reduction": 11.723168733783993
+   },
+   {
+    "feature": "u",
+    "threshold": -0.30001815850903957,
+    "sse_reduction": 10.322836060421707
+   },
+   {
+    "feature": "roll",
+    "threshold": 0.15077600307988812,
+    "sse_reduction": 7.878060772834004
+   },
+   {
+    "feature": "v_ego",
+    "threshold": 20.10232923979763,
+    "sse_reduction": 7.116720779652823
+   },
+   {
+    "feature": "u",
+    "threshold": -0.27677786558567513,
+    "sse_reduction": 6.721896753395129
+   },
+   {
+    "feature": "roll",
+    "threshold": 0.30139070869011286,
+    "sse_reduction": 5.804918367187888
+   },
+   {
+    "feature": "roll",
+    "threshold": 0.17911740325308578,
+    "sse_reduction": 5.77075929237256
+   },
+   {
+    "feature": "u",
+    "threshold": 0.04595188335971756,
+    "sse_reduction": 4.698023699820823
+   },
+   {
+    "feature": "v_ego",
+    "threshold": 23.074749062927808,
+    "sse_reduction": 4.695905311133934
+   }
+  ],
+  "PID+FF regime": {
+   "one_step_rmse": 0.04736378702514557,
+   "free_run_rmse": 0.12413541815750655
+  },
+  "MPC regime": {
+   "one_step_rmse": 0.06459935188077291,
+   "free_run_rmse": 0.13565945868381996
+  }
+ },
+ "PWA tree on (y_prev, u) only, 4 regions": {
+  "splits": [
+   {
+    "feature": "u",
+    "threshold": -0.12163688425054187,
+    "sse_reduction": 136.94849469013525
+   },
+   {
+    "feature": "u",
+    "threshold": 0.30934229723576273,
+    "sse_reduction": 37.59906154474044
+   },
+   {
+    "feature": "y_prev",
+    "threshold": 1.8914956011730206,
+    "sse_reduction": 46.86978253117087
+   }
+  ],
+  "PID+FF regime": {
+   "one_step_rmse": 0.049232528279054444,
+   "free_run_rmse": 0.13064608850054898
+  },
+  "MPC regime": {
+   "one_step_rmse": 0.06588513684984006,
+   "free_run_rmse": 0.13672031954545585
+  }
+ },
+ "PWA tree on (y_prev, u) only, 8 regions": {
+  "splits": [
+   {
+    "feature": "u",
+    "threshold": -0.12163688425054187,
+    "sse_reduction": 136.94849469013525
+   },
+   {
+    "feature": "u",
+    "threshold": 0.30934229723576273,
+    "sse_reduction": 37.59906154474044
+   },
+   {
+    "feature": "y_prev",
+    "threshold": 1.8914956011730206,
+    "sse_reduction": 46.86978253117087
+   },
+   {
+    "feature": "u",
+    "threshold": -0.3505822230951749,
+    "sse_reduction": 18.463516927241812
+   },
+   {
+    "feature": "u",
+    "threshold": 0.05122540581855428,
+    "sse_reduction": 12.502476938696645
+   },
+   {
+    "feature": "y_prev",
+    "threshold": -0.6793743890518087,
+    "sse_reduction": 10.678919081404104
+   },
+   {
+    "feature": "u",
+    "threshold": -0.8298790302217172,
+    "sse_reduction": 8.580861120575108
+   }
+  ],
+  "PID+FF regime": {
+   "one_step_rmse": 0.0473680804378488,
+   "free_run_rmse": 0.10804143813512429
+  },
+  "MPC regime": {
+   "one_step_rmse": 0.06453846748559959,
+   "free_run_rmse": 0.12846242948193637
+  }
+ },
+ "_noise_floor_one_step": 0.045569854264710406
+}

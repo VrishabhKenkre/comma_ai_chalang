@@ -1,0 +1,24 @@
+{
+ "model": "results/pwa/speed_binned_8.json",
+ "H": 8,
+ "w_du": 4.0,
+ "paths": 5,
+ "segs": "10000-10031",
+ "mean": {
+  "lataccel_cost": 0.6264264591903348,
+  "jerk_cost": 19.04264094625384,
+  "total_cost": 50.36396390577058
+ },
+ "n_steps": 15981,
+ "n_failed": 0,
+ "rel_gap_median": -7.982516451265769e-08,
+ "rel_gap_mean": -1.720793510521871e-06,
+ "ms_per_step_mean": 8.79847826922191,
+ "ms_per_step_p99": 22.75217757560315,
+ "rounding_used": {
+  "random": 15981,
+  "simulated": 0,
+  "given": 0
+ },
+ "note": "ms/step measured inside parallel worker processes (machine shared), not an idle single-thread timing"
+}

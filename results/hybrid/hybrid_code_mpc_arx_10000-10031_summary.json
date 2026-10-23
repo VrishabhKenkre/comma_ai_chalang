@@ -1,0 +1,24 @@
+{
+ "model": "results/pwa/mpc_arx_round1_as_pwa.json",
+ "H": 8,
+ "w_du": 4.0,
+ "paths": 5,
+ "segs": "10000-10031",
+ "mean": {
+  "lataccel_cost": 0.6046990271602845,
+  "jerk_cost": 19.17056337370228,
+  "total_cost": 49.40551473171651
+ },
+ "n_steps": 15981,
+ "n_failed": 0,
+ "rel_gap_median": -3.7686937672277017e-07,
+ "rel_gap_mean": -1.0403360959811737e-05,
+ "ms_per_step_mean": 9.702337125757886,
+ "ms_per_step_p99": 25.9601187193767,
+ "rounding_used": {
+  "random": 15981,
+  "simulated": 0,
+  "given": 0
+ },
+ "note": "ms/step measured inside parallel worker processes (machine shared), not an idle single-thread timing"
+}

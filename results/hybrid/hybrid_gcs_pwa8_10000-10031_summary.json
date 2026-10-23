@@ -1,0 +1,24 @@
+{
+ "model": "results/pwa/pwa_yu_8.json",
+ "H": 8,
+ "w_du": 4.0,
+ "paths": 5,
+ "segs": "10000-10031",
+ "mean": {
+  "lataccel_cost": 5.956757599193144,
+  "jerk_cost": 20.448132217577157,
+  "total_cost": 318.28601217723434
+ },
+ "n_steps": 15981,
+ "n_failed": 26,
+ "rel_gap_median": 0.4223072250725049,
+ "rel_gap_mean": 0.4318507682709577,
+ "ms_per_step_mean": 7272.61690858156,
+ "ms_per_step_p99": 9754.827162292786,
+ "rounding_used": {
+  "random": 1415,
+  "simulated": 13809,
+  "given": 731
+ },
+ "note": "ms/step measured inside parallel worker processes (machine shared), not an idle single-thread timing"
+}
