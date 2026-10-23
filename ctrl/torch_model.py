@@ -65,16 +65,27 @@ class TinyPhysicsTorch(torch.nn.Module):
     var = ((x - mu) ** 2).mean(-1, keepdim=True)
     return (x - mu) / torch.sqrt(var + 1e-5) * wb[0] + wb[1]
 
-  def embed_tokens(self, past_y, soft):
+  def embed_tokens(self, past_y, soft, grad_halfwidth=3):
     if not soft:
       # same as LataccelTokenizer.encode: np.digitize(clip(y), bins, right=True)
-      tok = torch.bucketize(past_y.clamp(*LATACCEL_RANGE), self.bins, right=False)
+      tok = torch.bucketize(past_y.contiguous().clamp(*LATACCEL_RANGE), self.bins, right=False)
       return self.tok_emb[tok]
-    pos = (past_y.clamp(*LATACCEL_RANGE) - LATACCEL_RANGE[0]) / (self.bins[1] - self.bins[0])
+    step = self.bins[1] - self.bins[0]
+    pos = (past_y.clamp(*LATACCEL_RANGE) - LATACCEL_RANGE[0]) / step
     lo = pos.floor().clamp(0, VOCAB_SIZE - 2)
     frac = (pos - lo).unsqueeze(-1)
     lo = lo.long()
-    return self.tok_emb[lo] * (1 - frac) + self.tok_emb[lo + 1] * frac
+    emb = self.tok_emb[lo] * (1 - frac) + self.tok_emb[lo + 1] * frac
+    if not past_y.requires_grad:
+      return emb
+    # Learned embeddings are not smooth from one bin to the next, so the slope of
+    # the interpolation inside one bin is noisy. For gradients we use the slope of
+    # the table over +-grad_halfwidth bins (forward value unchanged).
+    m = grad_halfwidth
+    i0 = (lo - m + 1).clamp(0, VOCAB_SIZE - 1)
+    i1 = (lo + m).clamp(0, VOCAB_SIZE - 1)
+    slope = (self.tok_emb[i1] - self.tok_emb[i0]) / ((i1 - i0).clamp(min=1).unsqueeze(-1) * step)
+    return emb.detach() + (past_y - past_y.detach()).unsqueeze(-1) * slope.detach()
 
   def logits(self, states, past_y, soft_tokens=False):
     """states [B, T, 4], past_y [B, T] (float lataccel values) -> logits [B, T, 1024]."""

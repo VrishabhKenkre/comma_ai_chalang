@@ -1,0 +1,71 @@
+{
+ "ilqr_stress_segs.csv": {
+  "params": {
+   "H": 12,
+   "iters": 1,
+   "w_du": 2.0
+  },
+  "evaluator": "ctrl/batch_eval.py (lockstep, GPU controller)",
+  "wall_s": 91.37683629989624,
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "ilqr_shifts-0.3_-0.1_0.1_0.3_stress_segs.csv": {
+  "params": {
+   "H": 12,
+   "iters": 1,
+   "w_du": 2.0,
+   "shifts": [
+    -0.3,
+    -0.1,
+    0.1,
+    0.3
+   ]
+  },
+  "evaluator": "ctrl/batch_eval.py (lockstep, GPU controller)",
+  "wall_s": 101.47734475135803,
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "ilqr_shifts-0.5_-0.2_0.2_0.5_stress_segs.csv": {
+  "params": {
+   "H": 12,
+   "iters": 1,
+   "w_du": 2.0,
+   "shifts": [
+    -0.5,
+    -0.2,
+    0.2,
+    0.5
+   ]
+  },
+  "evaluator": "ctrl/batch_eval.py (lockstep, GPU controller)",
+  "wall_s": 101.32744240760803,
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "sweep_ilqr_H12_it1_w2.0_satshifts_stress_segs.csv": {
+  "params": {
+   "H": 12,
+   "iters": 1,
+   "w_du": 2.0,
+   "shifts": [
+    -0.3,
+    -0.1,
+    0.1,
+    0.3
+   ]
+  },
+  "evaluator": "ctrl/batch_eval.py (lockstep, GPU controller)",
+  "wall_s": 102.35881924629211,
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "ilqr_noshifts_10500-12999.csv": {
+  "params": {
+   "H": 12,
+   "iters": 1,
+   "w_du": 2.0
+  },
+  "evaluator": "ctrl/batch_eval.py (lockstep, GPU controller)",
+  "wall_s": 1214.7096931934357,
+  "device": "NVIDIA GeForce RTX 5090",
+  "note": "first iLQR version (no saturation search), failure hunt on non-test segs"
+ }
+}

@@ -1,0 +1,56 @@
+{
+ "ilqr_noshifts_00000-04999.csv": {
+  "params": {
+   "H": 12,
+   "iters": 1,
+   "w_du": 2.0
+  },
+  "evaluator": "ctrl/batch_eval.py (lockstep, GPU controller)",
+  "wall_s": 1883.9016814231873,
+  "device": "NVIDIA GeForce RTX 5090",
+  "note": "first iLQR version (no saturation search); kept for the record"
+ },
+ "ilqr_noshifts_10000-10499.csv": {
+  "params": {
+   "H": 12,
+   "iters": 1,
+   "w_du": 2.0
+  },
+  "evaluator": "ctrl/batch_eval.py (lockstep, GPU controller)",
+  "wall_s": 196.7091658115387,
+  "device": "NVIDIA GeForce RTX 5090",
+  "note": "first iLQR version (no saturation search); kept for the record"
+ },
+ "ilqr_10000-10499.csv": {
+  "params": {
+   "H": 12,
+   "iters": 1,
+   "w_du": 2.0,
+   "shifts": [
+    -0.3,
+    -0.1,
+    0.1,
+    0.3
+   ]
+  },
+  "evaluator": "ctrl/batch_eval.py (lockstep, GPU controller)",
+  "wall_s": 356.41748881340027,
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "ilqr_00000-04999.csv": {
+  "params": {
+   "H": 12,
+   "iters": 1,
+   "w_du": 2.0,
+   "shifts": [
+    -0.3,
+    -0.1,
+    0.1,
+    0.3
+   ]
+  },
+  "evaluator": "ctrl/batch_eval.py (lockstep, GPU controller)",
+  "wall_s": 2358.7536392211914,
+  "device": "NVIDIA GeForce RTX 5090"
+ }
+}

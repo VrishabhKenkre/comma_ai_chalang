@@ -1,0 +1,11 @@
+sweep_ilqr_H12_it1_w0.5 on 200 segs (10000-10199): lataccel 0.424  jerk 18.823  total 40.045   wall 68s
+sweep_ilqr_H12_it1_w1.0 on 200 segs (10000-10199): lataccel 0.396  jerk 17.843  total 37.644   wall 68s
+sweep_ilqr_H12_it1_w2.0 on 200 segs (10000-10199): lataccel 0.396  jerk 16.956  total 36.739   wall 68s
+sweep_ilqr_H12_it1_w4.0 on 200 segs (10000-10199): lataccel 0.422  jerk 16.117  total 37.231   wall 68s
+sweep_ilqr_H20_it1_w1.0 on 200 segs (10000-10199): lataccel 0.400  jerk 17.835  total 37.826   wall 92s
+sweep_ilqr_H12_it2_w1.0 on 200 segs (10000-10199): lataccel 0.384  jerk 17.702  total 36.924   wall 97s
+sweep_ilqr_H20_it2_w1.0 on 200 segs (10000-10199): lataccel 0.388  jerk 17.777  total 37.153   wall 141s
+sweep_ilqr_H20_it1_w2.0 on 200 segs (10000-10199): lataccel 0.404  jerk 16.943  total 37.157   wall 92s
+sweep_ilqr_H12_it2_w2.0 on 200 segs (10000-10199): lataccel 0.390  jerk 16.998  total 36.489   wall 97s
+sweep_ilqr_H20_it2_w2.0 on 200 segs (10000-10199): lataccel 0.393  jerk 16.935  total 36.608   wall 141s
+ALL_DONE

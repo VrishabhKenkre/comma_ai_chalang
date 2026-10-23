@@ -1,8 +1,9 @@
 """Iterative closed-loop re-identification ("identification for control").
 
 The first ARX (scripts/sysid.py) was fitted on PID+FF-like steering. The MPC
-steers more aggressively, and there the ARX was wrong (one-step error 0.38 vs
-0.016 m/s^2), which forced a large steer-rate penalty. Each round here:
+steers more aggressively, and there the ARX is less accurate (see the
+"previous model" column of results/sysid/SYSID.md), which forces a large
+steer-rate penalty. Each round here:
   1. runs the current MPC (+ dither) on the sysID segments 15000-15399,
      half with steer-rate weight 0.5 and half with 1.0,
   2. refits the ARX (same order as round 0) on all data collected so far,
