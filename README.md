@@ -65,6 +65,12 @@ uv pip install --python .venv/bin/python -r requirements-project.txt   # torch: 
 .venv/bin/python eval.py --model_path ./models/tinyphysics.onnx --data_path ./data --num_segs 5000 \
     --test_controller mpc --baseline_controller pid
 
+# iLQR in the official eval.py (CPU, ~1 min per segment per worker). Hide the GPU: eval.py runs
+# sample rollouts in the parent and then forks, and PyTorch's autograd refuses to run in a
+# forked child once its CUDA device threads exist.
+CUDA_VISIBLE_DEVICES= .venv/bin/python eval.py --model_path ./models/tinyphysics.onnx --data_path ./data \
+    --num_segs 5000 --test_controller ilqr --baseline_controller pid
+
 # iLQR on the GPU through the lockstep evaluator (exactness check: scripts/verify_batch_eval.py)
 .venv/bin/python scripts/run_batch_eval.py --start 0 --num_segs 5000 --H 12 --iters 1 --w_du 2.0 \
     --shifts -0.3 -0.1 0.1 0.3 --name ilqr
