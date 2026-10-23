@@ -11,11 +11,12 @@ through the simulator's own model. Every controller is causal and uses only what
 | controller | total cost |
 |---|---:|
 | PID (upstream baseline) | 110.25 |
-| PID + preview feedforward, gains tuned once | 63.64 |
+| PID + preview feedforward, 7 parameters tuned once (Nelder-Mead) | 63.64 |
+| PID + preview feedforward, 10 parameters tuned once (CMA-ES): the strong baseline | 60.42 |
 | Preview MPC on an identified ARX model + Kalman disturbance observer (OSQP or ADMM) | 57.44 / 57.40 |
-| Receding-horizon iLQR through the TinyPhysics model (expected value) | **40.59** |
+| Receding-horizon iLQR through the TinyPhysics model (expected value) | **40.59** (official eval.py: 40.54) |
 
-The linear MPC beats our PID+FF but not the best PID+FF on the leaderboard (50.6). The
+The linear MPC beats our strongest PID+FF (60.4) but not the best PID+FF on the leaderboard (50.6). The
 iLQR beats the ~48 of the best feedback-style entries, but it uses the simulator's own
 network as its model (see "Leaderboard context"). Its first test run scored **58.19**
 because of two saturation blow-ups. The fix was designed on non-test data, and only 7 of the
@@ -91,20 +92,32 @@ ms/step = mean wall time of one `update()` call, single thread, on a Ryzen 9 995
 |---|---:|---:|---:|---:|---|
 | zero | 20.784 | 13.216 | 1052.430 | | official |
 | PID (upstream) | 1.695 | 25.490 | 110.254 | 0.0007 | official |
-| PID + feedforward | 0.868 | 20.243 | 63.644 | 0.015 | official |
+| PID + feedforward (Nelder-Mead) | 0.868 | 20.243 | 63.644 | 0.015 | official |
+| PID + feedforward (CMA-ES, strong baseline) | 0.813 | 19.753 | 60.415 | 0.022 | official |
 | LQR (ARX + observer, no preview) | 1.504 | 24.641 | 99.851 | 0.11 | official |
 | MPC without observer | 1.634 | 17.800 | 99.491 | 0.40 | official |
 | MPC with observer, OSQP | 0.734 | 20.719 | 57.437 | 0.43 | official |
 | MPC with observer, ADMM | 0.734 | 20.694 | 57.402 | 0.24 | official |
 | iLQR, first version (no saturation search) | 0.790 | 18.706 | 58.191 | | lockstep |
-| **iLQR (final)** | 0.438 | 18.707 | **40.587** | 64.8 | lockstep |
+| **iLQR (final)** | 0.438 | 18.707 | **40.587** | 64.4 | lockstep |
 
-Dev set (10000-10499) for the same controllers: PID 110.52, PID+FF 61.05, LQR 94.88,
+Dev set (10000-10499) for the same controllers: PID 110.52, PID+FF 61.05, PID+FF CMA-ES 58.12, LQR 94.88,
 MPC without observer 96.15, MPC 54.31, MPC-ADMM 54.30, iLQR 38.92.
 
-Official `eval.py` reports: `results/reports/report_pid_vs_zero_5000.html` and
-`results/reports/report_mpc_vs_pid_5000.html`. They match the table exactly (PID 110.254,
-MPC 57.437).
+Official `eval.py` reports: `results/reports/report_pid_vs_zero_5000.html`,
+`results/reports/report_mpc_vs_pid_5000.html` and `results/reports/report_ilqr_vs_pid_5000.html`.
+The first two match the table exactly (PID 110.254, MPC 57.437). The iLQR report runs the
+same controller per segment on CPU in the unmodified harness and gives **40.540** (lataccel
+0.437, jerk 18.698), against 40.587 from the lockstep GPU evaluator. The small difference is
+expected, because CPU and GPU floats differ slightly and can flip a later token draw.
+
+**Real-time?** The simulator runs at 10 Hz (`DEL_T = 0.1` s in `tinyphysics.py`), so a
+controller has 100 ms per step. On one desktop CPU thread (Ryzen 9 9950X, `results/timing.json`)
+the iLQR takes 64.4 ms per step on average (p99 66.7 ms, max 69.1 ms), so it is real-time in
+steady state. It is *not* real-time at engagement: the first controlled step runs 10 iLQR
+iterations to build its first plan and takes about 404 ms. That could be done during the
+warmup calls before engagement instead, but this is not implemented. These timings are for a
+desktop CPU, not a comma device. All other controllers take under 0.5 ms per step.
 
 ![first five test segments](results/plots/segments.png)
 *Test segments 00000-00004 (the ones `eval.py` shows): target (green), PID+FF, MPC, iLQR,
@@ -171,6 +184,19 @@ per-segment costs. It reproduces `eval.py`'s report exactly (PID 110.254, zero 1
 The window and five gains were tuned once by Nelder-Mead on dev segments 10000-10199
 (`scripts/tune_pid_ff.py`). The static inverse model behind the feedforward was fitted on
 logged data (steer ~ 0.55 target - 0.6 roll, R^2 0.87).
+
+**Strong baseline (`controllers/pid_ff_cma.py`).** The same PID, with the feedforward
+widened to learned weights on the target averaged over five preview windows (now, t+1,
+t+2..4, t+5..9, t+10..19), a roll term and a mild speed scaling. That gives 10 global
+parameters, tuned once by CMA-ES (`scripts/tune_pid_ff_cma.py`, population 12, 60
+generations). comma's blog post on this challenge ([blog.comma.ai/rlcontrols](https://blog.comma.ai/rlcontrols/))
+used CMA-ES to tune "6 parameters of a custom feedback controller" and reports a cost of
+48.0. It reports no PID+FF number. The search started at the Nelder-Mead controller and
+used dev 10000-10199. The final pick (the CMA-ES mean) was made on dev 10200-10499, which
+the search never saw: 61.06 there, against 64.57 for the start point. Results: dev 58.12,
+test **60.42** (vs 63.64). That is about 10 points behind the leaderboard's best PID+FF
+(50.6, "PID w FF"). We do not know that entry's structure, so we cannot say what it does
+differently.
 
 ### 3. System identification (`scripts/sysid.py`, [results/sysid/SYSID.md](results/sysid/SYSID.md))
 - The ONNX model was re-implemented in PyTorch (`ctrl/torch_model.py`); it matches

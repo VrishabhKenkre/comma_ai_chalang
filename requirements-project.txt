@@ -11,3 +11,7 @@ osqp
 onnx
 numba
 torch  # CUDA build used: pip install torch --index-url https://download.pytorch.org/whl/cu128
+cma
+drake
+cvxpy
+pyscipopt

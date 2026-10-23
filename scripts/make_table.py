@@ -4,6 +4,7 @@ Numbers are never typed by hand: every row is the mean of a saved run.
 Optional ms/step values come from results/timing.json (scripts/time_controllers.py).
 """
 import json
+import re
 from pathlib import Path
 
 import pandas as pd
@@ -39,6 +40,14 @@ def main():
   for seg_range, name, n, la, jk, tot, ms, ev in rows:
     ms_s = f"{ms:.3g}" if ms is not None else ""
     lines.append(f"| {seg_range} | {name} | {n} | {la:.3f} | {jk:.3f} | {tot:.3f} | {ms_s} | {ev} |")
+  lines += ["", "## Official eval.py reports (aggregate only)", "",
+            "Parsed from `results/reports/report_<test>_vs_<baseline>_<n>.html` (unmodified eval.py).", "",
+            "| report | controller | lataccel_cost | jerk_cost | total_cost |", "|---|---|---:|---:|---:|"]
+  for f in sorted((ROOT / "results" / "reports").glob("report_*_vs_*.html")):
+    test, base = f.stem[len("report_"):].rsplit("_", 1)[0].split("_vs_")
+    for role, la, jk, tot in re.findall(r"<td>(test|baseline)</td>\s*<td>([\d.]+)</td>\s*<td>([\d.]+)</td>\s*<td>([\d.]+)</td>",
+                                        f.read_text()):
+      lines.append(f"| {f.name} | {test if role == 'test' else base} | {la} | {jk} | {tot} |")
   (ROOT / "results" / "RESULTS.md").write_text("\n".join(lines) + "\n")
   print("\n".join(lines))
 
