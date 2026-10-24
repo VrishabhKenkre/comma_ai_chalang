@@ -40,12 +40,17 @@ T_MAX = 700                   # longest segment is 602 steps
 
 class BatchILQR:
   def __init__(self, B, H=12, iters=1, first_iters=10, w_du=1.0, mu=1e-6,
-               alphas=(1.0, 0.5, 0.25, 0.1, 0.0), shifts=(), var_weight=0.0, device="cpu", lin_chunk=512):
+               alphas=(1.0, 0.5, 0.25, 0.1, 0.0), shifts=(), var_weight=0.0, pre_steps=0,
+               device="cpu", lin_chunk=512):
     if device == "cpu":
       torch.set_num_threads(1)
     self.dev = torch.device(device)
     self.model = TinyPhysicsTorch().to(self.dev)
     self.B, self.H, self.iters, self.first_iters, self.w_du, self.mu = B, H, iters, first_iters, w_du, mu
+    # pre_steps > 0: warm up the plan during the last pre_steps warmup calls (one iteration each;
+    # the simulator ignores the output then), so the engagement step needs only `iters` iterations
+    # and stays inside the 100 ms control period. pre_steps = 0: first_iters iterations at engagement.
+    self.pre_steps = pre_steps
     self.lin_chunk = lin_chunk
     # Risk-sensitive variant: add var_weight * sigma_k^2 per horizon step, sigma_k = std of the
     # model's predicted distribution (exact, over the bins). In our cost units the exact one-step
@@ -205,11 +210,20 @@ class BatchILQR:
     if t < CONTROL_START_IDX:
       # output ignored by the simulator; remember a guess of the logged steer
       self.u[:, t] = T(WARMUP_FF[0] * refs[:, 2] + WARMUP_FF[1] * rolls[:, 2])
+      if self.pre_steps and t >= CONTROL_START_IDX - self.pre_steps:
+        self._plan(t, refs, rolls, fut, T, self.iters)              # warm up the plan only
       return self.u[:, t].cpu().numpy().astype(np.float64)
+    n_iter = self.first_iters if (t == CONTROL_START_IDX and not self.pre_steps) else self.iters
+    U = self._plan(t, refs, rolls, fut, T, n_iter)
+    self.u[:, t] = U[:, 0]
+    return U[:, 0].cpu().numpy().astype(np.float64)
 
+  def _plan(self, t, refs, rolls, fut, T, n_iter):
+    """Warm start (or feedforward guess), saturation search, then n_iter iLQR iterations. Sets self.U."""
+    H, B = self.H, self.B
     exo = torch.cat([self.exo[:, t - N:t + 1], T(fut)], 1)           # times t-20 .. t+H-1
     y_hist, u_hist, r = self.y[:, t - N:t], self.u[:, t - N:t], T(refs)
-    if self.U is None:          # first engaged step: static feedforward guess
+    if self.U is None:          # first planning step: static feedforward guess
       ext = lambda a: np.concatenate([a[:, 2:], np.repeat(a[:, -1:], 2, 1)], 1)
       self.U = T(WARMUP_FF[0] * ext(refs) + WARMUP_FF[1] * ext(rolls))
     else:                       # warm start: shift the previous plan by one step
@@ -227,7 +241,7 @@ class BatchILQR:
     Y, U, Sg, J = Ys[rows], Us[rows], Ss[rows], Js.min(1).values
     nA = len(self.alphas)
     rep = lambda a: a.repeat_interleave(nA, 0)                        # row = b * nA + alpha
-    for _ in range(self.first_iters if t == CONTROL_START_IDX else self.iters):
+    for _ in range(n_iter):
       X, Fx, Fu, S = self._linearize(Y, U, exo, y_hist, u_hist)
       kappa, K = self._backward(X, Fx, Fu, r, S, Sg)
       fb = (rep(U), rep(X.float()), rep(kappa.float()), rep(K.float()), self.alphas.repeat(B))
@@ -241,8 +255,7 @@ class BatchILQR:
       Sg = torch.where(better[:, None], Sc[rows], Sg)
       J = torch.where(better, Jc[torch.arange(B, device=self.dev), best], J)
     self.U = U
-    self.u[:, t] = U[:, 0]
-    return U[:, 0].cpu().numpy().astype(np.float64)
+    return U
 
 
 class ILQRController(BaseController):

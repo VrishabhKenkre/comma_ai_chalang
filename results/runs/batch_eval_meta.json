@@ -21,23 +21,7 @@
   "device": "NVIDIA GeForce RTX 5090",
   "note": "first iLQR version (no saturation search); kept for the record"
  },
- "ilqr_10000-10499.csv": {
-  "params": {
-   "H": 12,
-   "iters": 1,
-   "w_du": 2.0,
-   "shifts": [
-    -0.3,
-    -0.1,
-    0.1,
-    0.3
-   ]
-  },
-  "evaluator": "ctrl/batch_eval.py (lockstep, GPU controller)",
-  "wall_s": 356.41748881340027,
-  "device": "NVIDIA GeForce RTX 5090"
- },
- "ilqr_00000-04999.csv": {
+ "ilqr_engage10_00000-04999.csv": {
   "params": {
    "H": 12,
    "iters": 1,
@@ -51,10 +35,10 @@
   },
   "evaluator": "ctrl/batch_eval.py (lockstep, GPU controller)",
   "wall_s": 2358.7536392211914,
-  "device": "NVIDIA GeForce RTX 5090"
+  "device": "NVIDIA GeForce RTX 5090",
+  "note": "10 iLQR iterations at the engagement step (about 0.4 s); superseded by pre_steps=10"
  },
- "ilqr_rs_10000-10499.csv": {
-  "ctrl": "ilqr",
+ "ilqr_engage10_10000-10499.csv": {
   "params": {
    "H": 12,
    "iters": 1,
@@ -64,15 +48,14 @@
     -0.1,
     0.1,
     0.3
-   ],
-   "var_weight": 1.5
+   ]
   },
   "evaluator": "ctrl/batch_eval.py (lockstep, GPU controller)",
-  "deterministic_plant": false,
-  "wall_s": 1651.0544619560242,
-  "device": "NVIDIA GeForce RTX 5090"
+  "wall_s": 356.41748881340027,
+  "device": "NVIDIA GeForce RTX 5090",
+  "note": "10 iLQR iterations at the engagement step (about 0.4 s); superseded by pre_steps=10"
  },
- "ilqr_rs_00000-04999.csv": {
+ "ilqr_rs_engage10_00000-04999.csv": {
   "ctrl": "ilqr",
   "params": {
    "H": 12,
@@ -89,6 +72,105 @@
   "evaluator": "ctrl/batch_eval.py (lockstep, GPU controller)",
   "deterministic_plant": false,
   "wall_s": 4782.3864941596985,
+  "device": "NVIDIA GeForce RTX 5090",
+  "note": "10 iLQR iterations at the engagement step (about 0.4 s); superseded by pre_steps=10"
+ },
+ "ilqr_rs_engage10_10000-10499.csv": {
+  "ctrl": "ilqr",
+  "params": {
+   "H": 12,
+   "iters": 1,
+   "w_du": 2.0,
+   "shifts": [
+    -0.3,
+    -0.1,
+    0.1,
+    0.3
+   ],
+   "var_weight": 1.5
+  },
+  "evaluator": "ctrl/batch_eval.py (lockstep, GPU controller)",
+  "deterministic_plant": false,
+  "wall_s": 1651.0544619560242,
+  "device": "NVIDIA GeForce RTX 5090",
+  "note": "10 iLQR iterations at the engagement step (about 0.4 s); superseded by pre_steps=10"
+ },
+ "ilqr_10000-10499.csv": {
+  "ctrl": "ilqr",
+  "params": {
+   "H": 12,
+   "iters": 1,
+   "w_du": 2.0,
+   "shifts": [
+    -0.3,
+    -0.1,
+    0.1,
+    0.3
+   ],
+   "pre_steps": 10
+  },
+  "evaluator": "ctrl/batch_eval.py (lockstep, GPU controller)",
+  "deterministic_plant": false,
+  "wall_s": 241.1306266784668,
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "ilqr_rs_10000-10499.csv": {
+  "ctrl": "ilqr",
+  "params": {
+   "H": 12,
+   "iters": 1,
+   "w_du": 2.0,
+   "shifts": [
+    -0.3,
+    -0.1,
+    0.1,
+    0.3
+   ],
+   "var_weight": 1.5,
+   "pre_steps": 10
+  },
+  "evaluator": "ctrl/batch_eval.py (lockstep, GPU controller)",
+  "deterministic_plant": false,
+  "wall_s": 261.14013862609863,
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "ilqr_00000-04999.csv": {
+  "ctrl": "ilqr",
+  "params": {
+   "H": 12,
+   "iters": 1,
+   "w_du": 2.0,
+   "shifts": [
+    -0.3,
+    -0.1,
+    0.1,
+    0.3
+   ],
+   "pre_steps": 10
+  },
+  "evaluator": "ctrl/batch_eval.py (lockstep, GPU controller)",
+  "deterministic_plant": false,
+  "wall_s": 3240.423933982849,
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "ilqr_rs_00000-04999.csv": {
+  "ctrl": "ilqr",
+  "params": {
+   "H": 12,
+   "iters": 1,
+   "w_du": 2.0,
+   "shifts": [
+    -0.3,
+    -0.1,
+    0.1,
+    0.3
+   ],
+   "var_weight": 1.5,
+   "pre_steps": 10
+  },
+  "evaluator": "ctrl/batch_eval.py (lockstep, GPU controller)",
+  "deterministic_plant": false,
+  "wall_s": 3713.4230256080627,
   "device": "NVIDIA GeForce RTX 5090"
  }
 }

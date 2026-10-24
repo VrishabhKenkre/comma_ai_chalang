@@ -15,8 +15,8 @@ through the simulator's own model. Every controller is causal and uses only what
 | PID + preview feedforward, 10 parameters tuned once (CMA-ES): the strong baseline | 60.41 |
 | Preview MPC on an identified ARX model + Kalman disturbance observer (OSQP or ADMM) | 57.44 / 57.40 |
 | Same MPC, 13 parameters tuned by CMA-ES (research branch) | 56.68 |
-| Receding-horizon iLQR through the TinyPhysics model (expected value) | **40.59** (official eval.py: 40.54) |
-| Same iLQR, risk-sensitive: exact predicted variance in the cost (research branch) | **40.23** |
+| Receding-horizon iLQR through the TinyPhysics model (expected value) | **40.55** (eval.py; lockstep 40.56) |
+| Same iLQR, risk-sensitive: exact predicted variance in the cost (research branch) | **40.23** (lockstep; eval.py run pending) |
 
 The linear MPC beats our strongest PID+FF (60.4) but not the best PID+FF on the leaderboard (50.6). The
 iLQR beats the ~48 of the best feedback-style entries, but it uses the simulator's own
@@ -101,25 +101,32 @@ ms/step = mean wall time of one `update()` call, single thread, on a Ryzen 9 995
 | MPC with observer, OSQP | 0.734 | 20.719 | 57.437 | 0.43 | official |
 | MPC with observer, ADMM | 0.734 | 20.694 | 57.402 | 0.24 | official |
 | iLQR, first version (no saturation search) | 0.790 | 18.706 | 58.191 | | lockstep |
-| **iLQR (final)** | 0.438 | 18.707 | **40.587** | 64.4 | lockstep |
+| iLQR, 10 iterations at engagement (superseded by the latency fix) | 0.438 | 18.707 | 40.587 | 64.4 | lockstep |
+| same, in the official eval.py | 0.437 | 18.698 | 40.540 | | eval.py |
+| **iLQR (final, plan warmed during warmup)** | 0.437 | 18.698 | 40.559 | 64.1 | lockstep |
+| **same, in the official eval.py** | 0.437 | 18.697 | **40.550** | | eval.py |
 
 Dev set (10000-10499) for the same controllers: PID 110.52, PID+FF 61.05, PID+FF CMA-ES 58.12, LQR 94.88,
-MPC without observer 96.15, MPC 54.31, MPC-ADMM 54.30, iLQR 38.92.
+MPC without observer 96.15, MPC 54.31, MPC-ADMM 54.30, iLQR 38.89.
 
-Official `eval.py` reports: `results/reports/report_pid_vs_zero_5000.html`,
-`results/reports/report_mpc_vs_pid_5000.html` and `results/reports/report_ilqr_vs_pid_5000.html`.
-The first two match the table exactly (PID 110.254, MPC 57.437). The iLQR report runs the
-same controller per segment on CPU in the unmodified harness and gives **40.540** (lataccel
-0.437, jerk 18.698), against 40.587 from the lockstep GPU evaluator. The small difference is
+Official `eval.py` reports are in `results/reports/` (all on the 5000 test segments, baseline PID).
+For PID (110.254), MPC (57.437), CMA-ES MPC (56.683) and CMA-ES PID+FF (60.415) they match our
+`run_eval.py` runs exactly. For the iLQR, `eval.py` runs the same controller per segment on CPU:
+**40.550** for the final version, against 40.559 from the lockstep GPU evaluator. The version
+before the latency fix scored 40.540, against 40.587 lockstep. The small differences are
 expected, because CPU and GPU floats differ slightly and can flip a later token draw.
 
 **Real-time?** The simulator runs at 10 Hz (`DEL_T = 0.1` s in `tinyphysics.py`), so a
 controller has 100 ms per step. On one desktop CPU thread (Ryzen 9 9950X, `results/timing.json`)
-the iLQR takes 64.4 ms per step on average (p99 66.7 ms, max 69.1 ms), so it is real-time in
-steady state. It is *not* real-time at engagement: the first controlled step runs 10 iLQR
-iterations to build its first plan and takes about 404 ms. That could be done during the
-warmup calls before engagement instead, but this is not implemented. These timings are for a
-desktop CPU, not a comma device. All other controllers take under 0.5 ms per step.
+the iLQR takes 64.1 ms per step on average (p99 64.6 ms, max 66.2 ms), and the risk-sensitive
+iLQR 69.6 ms (max 73.1 ms), so both are real-time. Originally the first controlled step ran 10
+iLQR iterations to build its first plan and took about 404 ms (473 ms risk-sensitive), over
+budget. The controller is called during the 80 warmup steps anyway, though its output is
+ignored there. It now warms its plan with one iteration per call over the last 10 warmup steps
+(`pre_steps=10`), so the engagement step costs the same as any other: 64 / 70 ms. On dev this
+changed nothing measurable (paired -0.03 +- 0.02 and -0.01 +- 0.03 over 500 segments). Results
+of the earlier version are kept as `ilqr_engage10` / `ilqr_rs_engage10`. These timings are for
+a desktop CPU, not a comma device. All other controllers take under 0.5 ms per step.
 
 ![first five test segments](results/plots/segments.png)
 *Test segments 00000-00004 (the ones `eval.py` shows): target (green), PID+FF, MPC, iLQR,
@@ -160,9 +167,10 @@ Notes on the table:
    in steady state. In our first implementation that made the closed loop unstable (a
    development run, not kept). As an output offset it is the single most valuable addition
    to the MPC (99.5 -> 57.4 on test).
-5. **With the simulator's own (mean) model, iLQR is much better.** It scores 40.59 on test.
-   Tracking error is 0.438 vs 0.734 for the linear MPC, at lower jerk, and it beats the MPC
-   on 4,662 of the 5,000 segments. The price is compute: about 65 ms per step vs 0.4 ms.
+5. **With the simulator's own (mean) model, iLQR is much better.** It scores 40.55 on test
+   (eval.py). Tracking error is 0.437 vs 0.734 for the linear MPC, at lower jerk, and it beats
+   the MPC on 4,677 of the 5,000 segments (lockstep run). The price is compute: about 64 ms per
+   step vs 0.4 ms.
    A longer horizon (20) or a second iteration per step did not help measurably on dev
    (`results/tuning/ilqr_gpu_sweep/`).
 6. **ADMM with cached Riccati matches OSQP and is ~3x faster here.** On 9,991 QPs from real
@@ -273,7 +281,7 @@ correction `k` to the roll -> lataccel gain, both random walks; measurement row
   shifted by +-0.1 and +-0.3. Stress set mean: 160.5 -> 118.1. Dev 10000-10199: 36.74 ->
   36.86, unchanged within noise. The ungated version, which always tries the shifts, cost
   1.2 points on dev and was rejected.
-- We then re-ran the test set once: 40.59. Only 7 of the 5000 segments changed. 03817 went
+- We then re-ran the test set once: 40.59 (the version before the latency fix, `ilqr_engage10`). Only 7 of the 5000 segments changed. 03817 went
   84,143 -> 175 and 01545 went 4,195 -> 90; the other 4,993 are bit-identical.
 - Caveat: the failure was *discovered* on the test set, so for this one design decision the
   test set was not untouched. The fix is generic (it only acts at saturation) and was
@@ -302,9 +310,10 @@ question was whether steering can make the predicted distribution narrower.
   1.5 * sigma_k^2 per step, with sigma_k the model's exact predicted std. In our units that
   makes each step's cost the exact one-step expectation of the score; 1.5 is not a tuned
   weight. sigma enters the Gauss-Newton backward pass as a least-squares residual, with its
-  gradient from autograd. Result: dev 500 **-0.27 +- 0.06**, test 5000 **-0.36 +- 0.05**
-  (paired differences vs the final iLQR). Test: 40.23 vs 40.59, better on 3,085 of 5,000
-  segments. It is real and small. On the noise-floor segments it removes 0.8% of the iLQR's
+  gradient from autograd. Result: dev 500 **-0.25 +- 0.06**, test 5000 **-0.33 +- 0.03**
+  (paired differences vs the final iLQR, both with the latency fix, lockstep evaluator). Test:
+  40.23 vs 40.56, better on 3,062 of 5,000 segments. It is real and small. (Before the latency
+  fix the same comparison gave -0.36 +- 0.05.) On the noise-floor segments it removes 0.8% of the iLQR's
   noise cost.
 - **Negative results.** An exact expected-cost *one-step* lookahead fails completely (11,412
   on dev). Because of the 3-step delay, the next lataccel barely depends on the current steer.
@@ -371,7 +380,7 @@ this, CMA-ES had only been used for the PID+FF baseline (see the tuning history 
   (-0.75 +- 0.40)**. The improvement is consistent in sign, small, and about 2 standard
   errors on test. On the check set alone it is not distinguishable from zero. With the
   shorter horizon it is also faster: 0.15 ms per step instead of 0.43.
-- **Against the references.** iLQR 40.59. comma's blog CMA-ES controller 48.0 and the best
+- **Against the references.** iLQR 40.55 (eval.py). comma's blog CMA-ES controller 48.0 and the best
   leaderboard PID+FF 50.6, both as published and not reproduced. CMA-ES does not move the
   linear MPC anywhere near them. Its limit is the linear model, not the tuning.
 - **Learned residual: skipped.** The rule was to add one only if a fast controller got below
@@ -396,7 +405,7 @@ From [comma.ai/leaderboard](https://comma.ai/leaderboard) (archived challenge, r
 | 110.254 | PID (baseline) | reproduced exactly |
 
 Our linear MPC (57.4) does not beat the best feedback controllers or the best PID+FF.
-Our iLQR (40.59) belongs with the model-in-the-loop MPC entries (33.6-44.3): it is inside
+Our iLQR (40.55 in eval.py) belongs with the model-in-the-loop MPC entries (33.6-44.3): it is inside
 that range, not at the top of it. It does beat the ~48 of the best feedback-style entries
 and the 50.6 of the best PID+FF, but it knows more than they do (the exact mean model).
 

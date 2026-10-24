@@ -39,11 +39,11 @@ CMA-ES candidate kept: `cma_mean` (the better of best-evaluated and CMA-ES mean 
 |---|---:|---:|---|
 | CMA-ES MPC + observer | 56.68 | 0.15 | this run |
 | hand-tuned MPC + observer | 57.44 | 0.43 | results/runs |
-| iLQR through TinyPhysics | 40.59 | 64.4 | results/runs |
+| iLQR through TinyPhysics | 40.56 | 64.1 | results/runs |
 | PID+FF, CMA-ES (ours) | 60.41 | 0.022 | results/runs |
 | comma blog, CMA-ES-tuned custom feedback controller | 48.0 | | blog.comma.ai/rlcontrols (not reproduced) |
 | leaderboard best PID+FF | 50.608 | | comma.ai/leaderboard (not reproduced) |
 
 ## Learned residual on the steer output: skipped
 
-Rule: add a small learned residual only if a fast controller (ms/step well under the 100 ms control period) scores below 48 on test. Best fast controller: `mpc_cma` at 56.68 (0.15 ms/step), 8.7 points above 48, so no residual was trained. The only controllers below 48 are the two iLQR variants (40.59, and 40.23 risk-sensitive), which take 64-72 ms of the 100 ms period and are not fast controllers in this sense.
+Rule: add a small learned residual only if a fast controller (ms/step well under the 100 ms control period) scores below 48 on test. Best fast controller: `mpc_cma` at 56.68 (0.15 ms/step), 8.7 points above 48, so no residual was trained. The only controllers below 48 are the two iLQR variants (40.56, and 40.23 risk-sensitive; lockstep runs), which take 64-70 ms of the 100 ms period and are not fast controllers in this sense.

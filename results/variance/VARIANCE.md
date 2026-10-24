@@ -49,11 +49,11 @@ Stochastic cost change: -0.185, i.e. 0.8% of the iLQR's noise cost (24.177) remo
 
 | controller | segments | lataccel | jerk | total |
 |---|---|---:|---:|---:|
-| ilqr | 10000-10499 | 0.415 | 18.145 | 38.918 |
-| ilqr_rs | 10000-10499 | 0.412 | 18.030 | 38.646 |
-| ilqr | 00000-04999 | 0.438 | 18.707 | 40.587 |
-| ilqr_rs | 00000-04999 | 0.433 | 18.563 | 40.231 |
+| ilqr | 10000-10499 | 0.415 | 18.131 | 38.889 |
+| ilqr_rs | 10000-10499 | 0.412 | 18.037 | 38.637 |
+| ilqr | 00000-04999 | 0.437 | 18.698 | 40.559 |
+| ilqr_rs | 00000-04999 | 0.433 | 18.564 | 40.232 |
 
-dev 500: paired difference (risk-sensitive - iLQR) -0.272 +- 0.055, better on 296 of 500 segments.
+dev 500: paired difference (risk-sensitive - iLQR) -0.252 +- 0.064, better on 286 of 500 segments.
 
-test 5000: paired difference (risk-sensitive - iLQR) -0.356 +- 0.053, better on 3085 of 5000 segments.
+test 5000: paired difference (risk-sensitive - iLQR) -0.327 +- 0.032, better on 3062 of 5000 segments.

@@ -1,0 +1,41 @@
+{
+ "pre10_vw0_10000-10499.csv": {
+  "ctrl": "ilqr",
+  "params": {
+   "H": 12,
+   "iters": 1,
+   "w_du": 2.0,
+   "shifts": [
+    -0.3,
+    -0.1,
+    0.1,
+    0.3
+   ],
+   "pre_steps": 10
+  },
+  "evaluator": "ctrl/batch_eval.py (lockstep, GPU controller)",
+  "deterministic_plant": false,
+  "wall_s": 241.1306266784668,
+  "device": "NVIDIA GeForce RTX 5090"
+ },
+ "pre10_vw1.5_10000-10499.csv": {
+  "ctrl": "ilqr",
+  "params": {
+   "H": 12,
+   "iters": 1,
+   "w_du": 2.0,
+   "shifts": [
+    -0.3,
+    -0.1,
+    0.1,
+    0.3
+   ],
+   "var_weight": 1.5,
+   "pre_steps": 10
+  },
+  "evaluator": "ctrl/batch_eval.py (lockstep, GPU controller)",
+  "deterministic_plant": false,
+  "wall_s": 261.14013862609863,
+  "device": "NVIDIA GeForce RTX 5090"
+ }
+}

@@ -36,7 +36,7 @@ RMSE in m/s^2 against the network's expected lataccel. One-step from the true pa
 | hybrid-MPC code + the linear MPC's ARX (check) | 49.41 | 51.53 | 78.2 (10009) | 0 | -0.0% |
 | hybrid-MPC code + speed-binned refit | 50.36 | 50.96 | 79.0 (10009) | 0 | -0.0% |
 | hybrid MPC + 8-region PWA (GCS) | 318.29 | 53.49 | 8435.6 (10009) | 26 | 42.2% |
-| final iLQR (same segments) | 42.72 | 41.67 | 73.3 | | |
+| final iLQR (same segments) | 42.86 | 41.61 | 78.9 | | |
 
 Hybrid PWA vs linear MPC (H = 8), per segment: median difference +2.54; hybrid worse on 27 of 32 segments; differences above 40 on 3 segments.
 

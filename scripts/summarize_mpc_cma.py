@@ -71,8 +71,10 @@ def main():
         "Rule: add a small learned residual only if a fast controller (ms/step well under the 100 ms control "
         f"period) scores below 48 on test. Best fast controller: `{best}` at {fast[best][0]:.2f} "
         f"({fast[best][1]:.2f} ms/step), {fast[best][0] - 48:.1f} points above 48, so no residual was trained. "
-        "The only controllers below 48 are the two iLQR variants (40.59, and 40.23 risk-sensitive), which take "
-        "64-72 ms of the 100 ms period and are not fast controllers in this sense."]
+        f"The only controllers below 48 are the two iLQR variants ({mean('ilqr_00000-04999.csv').total_cost.mean():.2f}, and "
+        f"{mean('ilqr_rs_00000-04999.csv').total_cost.mean():.2f} risk-sensitive; lockstep runs), which take "
+        f"{timing['ilqr']['ms_per_step']:.0f}-{timing['ilqr_rs']['ms_per_step']:.0f} ms of the 100 ms period and are not "
+        "fast controllers in this sense."]
   (R / "tuning" / "MPC_CMA.md").write_text("\n".join(L) + "\n")
   print("\n".join(L))
 
