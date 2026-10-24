@@ -17,6 +17,7 @@ segment. Tuning used held-out dev segments only. Repo: `<link>`.
 | Preview MPC on ARX, no observer | 1.634 | 17.80 | 99.49 | 0.40 |
 | Preview MPC on ARX + observer, OSQP | 0.734 | 20.72 | 57.44 | 0.43 |
 | same, hand-written ADMM (cached Riccati, TinyMPC style) | 0.734 | 20.69 | 57.40 | 0.24 |
+| same MPC, 13 parameters tuned by CMA-ES on dev | 0.737 | 19.81 | 56.68 | 0.15 |
 | iLQR through TinyPhysics (expected value), H = 12 | 0.438 | 18.71 | 40.59 | 64 |
 | same, risk-sensitive (+ exact predicted variance in the cost) | 0.433 | 18.56 | **40.23** | 72 |
 
@@ -80,6 +81,11 @@ Inside MPPI, pricing the variance is worth 1.8 +- 0.2 points (40.9 without it), 
 than inside iLQR, presumably because sampled plans contain more variance-inducing steer
 changes.
 
+**Better tuning barely helps the linear MPC.** CMA-ES over 13 MPC and observer parameters,
+including the speed breakpoints, gains 0.75 +- 0.40 on test (57.44 -> 56.68). It found very
+different settings that score almost the same, so the objective is flat. The linear model, not
+the tuning, is the limit.
+
 **A better model of the nonlinearity did not help the MPC.** A piecewise-affine model with 8
 regions on lataccel and steer fits the network better than one linear model (20-step error
 0.108 vs 0.124 m/s^2). I solved hybrid MPC on it with a Graphs-of-Convex-Sets relaxation. The
@@ -107,6 +113,7 @@ solver.
 | MPC on ARX, no observer | 10000-10499 (500) | 1.573 | 17.50 | 96.15 | 38.92 | 54.31 | 99.49 | 0.402 |  |
 | MPC on ARX + observer, OSQP | 10000-10499 (500) | 0.686 | 20.00 | 54.31 | 38.92 | 54.31 | 57.44 | 0.430 |  |
 | MPC on ARX + observer, ADMM | 10000-10499 (500) | 0.686 | 20.00 | 54.30 | 38.92 | 54.31 | 57.40 | 0.244 |  |
+| MPC on ARX + observer, CMA-ES tuned (13 params) | 10000-10499 (500) | 0.684 | 18.82 | 53.03 | 38.92 | 54.31 | 56.68 | 0.148 | tuned on dev 10500-10999 |
 | iLQR through TinyPhysics, first version | 10000-10499 (500) | 0.415 | 18.13 | 38.88 | 38.92 | 54.31 | 58.19 |  | blow-ups, see README |
 | iLQR through TinyPhysics (final) | 10000-10499 (500) | 0.415 | 18.14 | 38.92 | 38.92 | 54.31 | 40.59 | 64.4 |  |
 | Risk-sensitive iLQR (+1.5 sigma^2, exact) | 10000-10499 (500) | 0.412 | 18.03 | 38.65 | 38.92 | 54.31 | 40.23 | 71.9 |  |

@@ -1,0 +1,7 @@
+refit with default breakpoints vs arx_models_round1.json: max coefficient difference 3.68e-10
+gen   1  best 57.104  median 600.970  best so far 57.104  invalid 6  (163s)
+gen   2  best 57.486  median 92.187  best so far 57.104  invalid 5  (354s)
+gen   3  best 58.652  median 612.349  best so far 57.104  invalid 6  (544s)
+gen   4  best 59.126  median 71.946  best so far 57.104  invalid 4  (761s)
+gen   5  best 57.670  median 85.456  best so far 57.104  invalid 5  (950s)
+gen   6  best 57.131  median 536.928  best so far 57.104  invalid 6  (1115s)

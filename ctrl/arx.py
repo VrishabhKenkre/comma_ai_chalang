@@ -14,8 +14,8 @@ import numpy as np
 SPEED_EDGES = [0, 5, 10, 15, 20, 25, 30, 35, 100]   # m/s, 8 bins
 
 
-def speed_bin(v):
-  return int(np.clip(np.searchsorted(SPEED_EDGES, v, side="right") - 1, 0, len(SPEED_EDGES) - 2))
+def speed_bin(v, edges=SPEED_EDGES):
+  return int(np.clip(np.searchsorted(edges, v, side="right") - 1, 0, len(edges) - 2))
 
 
 @dataclass
@@ -66,8 +66,8 @@ def free_run(m, y0, u, roll, t0, n):
   return y[t0:t0 + n]
 
 
-def save(models, path, meta=None):
-  json.dump({"speed_edges": SPEED_EDGES, "models": [asdict(m) for m in models], **(meta or {})},
+def save(models, path, meta=None, edges=SPEED_EDGES):
+  json.dump({"speed_edges": list(edges), "models": [asdict(m) for m in models], **(meta or {})},
             open(path, "w"), indent=1)
 
 
@@ -75,3 +75,9 @@ def load(path):
   raw = json.load(open(path))
   assert raw["speed_edges"] == SPEED_EDGES
   return [ARX(**m) for m in raw["models"]]
+
+
+def load_with_edges(path):
+  """Models and the speed breakpoints they were fitted for (tuned breakpoints may differ)."""
+  raw = json.load(open(path))
+  return [ARX(**m) for m in raw["models"]], list(raw["speed_edges"])

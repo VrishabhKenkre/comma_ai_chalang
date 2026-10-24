@@ -43,21 +43,22 @@ def state_space(m):
   return A, B, ny, nu
 
 
-def stage_cost(n):
-  """0.5 x'Qx for 0.5*(y-r)^2 + (y - y_prev)^2; linear term -r on x[0] is added per step."""
+def stage_cost(n, w_track=1.0, w_jerk=1.0):
+  """0.5 x'Qx for w_track*0.5*(y-r)^2 + w_jerk*(y - y_prev)^2; the linear term -w_track*r on x[0]
+  is added per step. w_track = w_jerk = 1 is the challenge score (/100)."""
   Q = np.zeros((n, n))
-  Q[0, 0], Q[0, 1], Q[1, 0], Q[1, 1] = 3.0, -2.0, -2.0, 2.0
+  Q[0, 0], Q[0, 1], Q[1, 0], Q[1, 1] = w_track + 2.0 * w_jerk, -2.0 * w_jerk, -2.0 * w_jerk, 2.0 * w_jerk
   return Q
 
 
 class MPCProblem:
   """Everything that depends only on the speed bin's model: built once, reused every step."""
 
-  def __init__(self, m, H=40, w_du=0.1, du_max=0.3, rho=1.0):
-    self.m, self.H, self.du_max = m, H, du_max
+  def __init__(self, m, H=40, w_du=0.1, du_max=0.3, rho=1.0, w_track=1.0, w_jerk=1.0):
+    self.m, self.H, self.du_max, self.w_track = m, H, du_max, w_track
     self.A, self.B, self.ny, self.nu = state_space(m)
     n = self.n = len(self.B)
-    self.Q = stage_cost(n)
+    self.Q = stage_cost(n, w_track, w_jerk)
     self.R = 2.0 * w_du
     self._setup_osqp()
     self._setup_admm(rho)
@@ -84,7 +85,7 @@ class MPCProblem:
     """x0 [n], f [H, n] affine terms, r [H] references -> delta sequence [H]."""
     H, n = self.H, self.n
     q = np.zeros(H * n + H)
-    q[0:H * n:n] = -r                               # from 0.5*(y - r)^2 = 0.5*y^2 - r*y + const
+    q[0:H * n:n] = -self.w_track * r                # from 0.5*w*(y - r)^2 = 0.5*w*y^2 - w*r*y + const
     beq = f.copy()
     beq[0] += self.A @ x0
     beq = beq.reshape(-1)
@@ -122,7 +123,7 @@ class MPCProblem:
     """Returns (delta [H], x [H, n], warm, iterations). `warm` is the previous call's warm."""
     H, n = self.H, self.n
     q = np.zeros((H + 1, n))
-    q[1:, 0] = -r                       # q[k] is the linear cost on x_k, k = 1..H
+    q[1:, 0] = -self.w_track * r        # q[k] is the linear cost on x_k, k = 1..H
     if warm is None or warm[0].shape != (H + 1, n):
       z = np.zeros((H + 1, n)); y = np.zeros((H + 1, n)); w = np.zeros(H); g = np.zeros(H)
     else:                               # shift last solution by one step

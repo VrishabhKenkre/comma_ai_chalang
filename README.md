@@ -14,6 +14,7 @@ through the simulator's own model. Every controller is causal and uses only what
 | PID + preview feedforward, 7 parameters tuned once (Nelder-Mead) | 63.64 |
 | PID + preview feedforward, 10 parameters tuned once (CMA-ES): the strong baseline | 60.41 |
 | Preview MPC on an identified ARX model + Kalman disturbance observer (OSQP or ADMM) | 57.44 / 57.40 |
+| Same MPC, 13 parameters tuned by CMA-ES (research branch) | 56.68 |
 | Receding-horizon iLQR through the TinyPhysics model (expected value) | **40.59** (official eval.py: 40.54) |
 | Same iLQR, risk-sensitive: exact predicted variance in the cost (research branch) | **40.23** |
 
@@ -346,6 +347,36 @@ Details: [results/hybrid/HYBRID.md](results/hybrid/HYBRID.md).
   by giving the hybrid code the linear MPC's own model: 49.41 vs 49.47.
 - **Speed.** 597 ms per step on one thread, 6x over the 100 ms budget. No test run: about 400
   CPU-hours, and not competitive on dev.
+
+### Step 4: CMA-ES tuning of the MPC
+
+Details: [results/tuning/MPC_CMA.md](results/tuning/MPC_CMA.md). comma's blog post found
+CMA-ES effective on this challenge, so the MPC + observer got the same treatment. Before
+this, CMA-ES had only been used for the PID+FF baseline (see the tuning history in
+[results/RESULTS.md](results/RESULTS.md)).
+
+- **Search (`scripts/tune_mpc_cma.py`).** 13 parameters, population 12, 40 generations:
+  tracking weight (jerk weight fixed at 1), steer-rate weight, horizon, the observer's
+  three noise variances and the speed-scheduling breakpoints. Each candidate refits its ARX
+  models for its own speed bins on the system-ID data. The breakpoints are parametrized as
+  each bin's share of the data, so every candidate is valid. A first attempt with raw
+  breakpoints wasted about half of each generation on invalid bins; it was stopped, and its
+  log is `results/tuning/mpc_cma_attempt1.log`. Objective: dev 10500-10999, which nothing had been tuned on. Check set:
+  dev 11000-11499.
+- **What it chose.** 5x more weight on tracking, steer-rate weight 34 instead of 4, horizon 8
+  instead of 40, a slower bias observer, and slightly shifted breakpoints. These settings are
+  very different from the hand-tuned ones, yet score almost the same: the objective is flat.
+- **Result.** Paired differences (CMA-ES minus hand-tuned): objective set -0.88 +- 0.56,
+  check set -0.69 +- 1.09, standard dev -1.28 +- 0.59, test **56.68 vs 57.44
+  (-0.75 +- 0.40)**. The improvement is consistent in sign, small, and about 2 standard
+  errors on test. On the check set alone it is not distinguishable from zero. With the
+  shorter horizon it is also faster: 0.15 ms per step instead of 0.43.
+- **Against the references.** iLQR 40.59. comma's blog CMA-ES controller 48.0 and the best
+  leaderboard PID+FF 50.6, both as published and not reproduced. CMA-ES does not move the
+  linear MPC anywhere near them. Its limit is the linear model, not the tuning.
+- **Learned residual: skipped.** The rule was to add one only if a fast controller got below
+  48 on test. The best fast controller is this one at 56.68. Only the iLQR variants are below
+  48, at 64-72 ms per step.
 
 ## Leaderboard context
 

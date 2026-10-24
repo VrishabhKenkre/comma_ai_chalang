@@ -25,10 +25,17 @@ WARMUP_FF = (0.55, -0.6)   # logged steer ~ 0.55*target(t+2) - 0.6*roll(t+2), fi
 class ARXController(BaseController):
   # defaults chosen on dev segments 10000-10199 (results/tuning/mpc_sweep_10000-10199.json)
   def __init__(self, solver="osqp", observer=True, H=40, w_du=4.0, du_max=0.3, rho=1.0,
-               kf=None, models_path=ARX_PATH):
-    self.models = arx.load(models_path)
+               kf=None, models_path=ARX_PATH, w_track=1.0, w_jerk=1.0, models=None, speed_edges=None):
+    """models / speed_edges: pass in-memory ARX models fitted for custom speed breakpoints
+    (used by scripts/tune_mpc_cma.py); otherwise they are read from models_path."""
+    if models is None:
+      models, file_edges = arx.load_with_edges(models_path)
+      speed_edges = speed_edges or file_edges
+    self.models, self.edges = models, list(speed_edges or arx.SPEED_EDGES)
+    assert len(self.edges) == len(self.models) + 1
     self.solver, self.use_observer, self.H = solver, observer, H
-    self.problems = [MPCProblem(m, H=H, w_du=w_du, du_max=du_max, rho=rho) for m in self.models]
+    self.problems = [MPCProblem(m, H=H, w_du=w_du, du_max=du_max, rho=rho, w_track=w_track, w_jerk=w_jerk)
+                     for m in self.models]
     self.kf = BiasRollKF(**{"q_d": 3e-3, "q_k": 1e-5, **(kf or {})})
     self.step = CONTEXT_LENGTH
     self.y, self.u, self.roll, self.v = [], [], [], []     # y_{..t-1}, u_{..t-1}, roll_{..t}, v_{..t}
@@ -70,11 +77,11 @@ class ARXController(BaseController):
 
     # observer: residual of y_{t-1} under the model of step t-1's speed bin,
     # once all regressors are our own applied steers
-    m_prev = self.models[arx.speed_bin(self.v[-2])]
+    m_prev = self.models[arx.speed_bin(self.v[-2], self.edges)]
     if self.use_observer and t >= CONTROL_START_IDX + m_prev.nb + 1:
       self.kf.update(self.y[-1] - self._arx_predict_last(m_prev), self.roll[-2], g=1 - sum(m_prev.a))
 
-    p = self.problems[arx.speed_bin(state.v_ego)]
+    p = self.problems[arx.speed_bin(state.v_ego, self.edges)]
     m = p.m
     # known exogenous part of each predicted y_{t+k}: roll terms + bias (+ observer)
     roll_hist = np.r_[self.roll[-1 - m.nc:-1] if m.nc else [], rolls]   # roll_{t-nc..t+H-1}

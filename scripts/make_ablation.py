@@ -22,6 +22,8 @@ ROWS = [
   ("MPC on ARX, no observer", "runs/mpc_noobs_10000-10499.csv", "runs/mpc_noobs_00000-04999.csv", "mpc_noobs", ""),
   ("MPC on ARX + observer, OSQP", "runs/mpc_10000-10499.csv", "runs/mpc_00000-04999.csv", "mpc", ""),
   ("MPC on ARX + observer, ADMM", "runs/mpc_admm_10000-10499.csv", "runs/mpc_admm_00000-04999.csv", "mpc_admm", ""),
+  ("MPC on ARX + observer, CMA-ES tuned (13 params)", "runs/mpc_cma_10000-10499.csv", "runs/mpc_cma_00000-04999.csv", "mpc_cma",
+   "tuned on dev 10500-10999"),
   ("iLQR through TinyPhysics, first version", "runs/ilqr_noshifts_10000-10499.csv", "runs/ilqr_noshifts_00000-04999.csv", None, "blow-ups, see README"),
   ("iLQR through TinyPhysics (final)", "runs/ilqr_10000-10499.csv", "runs/ilqr_00000-04999.csv", "ilqr", ""),
   ("Risk-sensitive iLQR (+1.5 sigma^2, exact)", "runs/ilqr_rs_10000-10499.csv", "runs/ilqr_rs_00000-04999.csv", "ilqr_rs", ""),

@@ -48,6 +48,29 @@ def main():
     for role, la, jk, tot in re.findall(r"<td>(test|baseline)</td>\s*<td>([\d.]+)</td>\s*<td>([\d.]+)</td>\s*<td>([\d.]+)</td>",
                                         f.read_text()):
       lines.append(f"| {f.name} | {test if role == 'test' else base} | {la} | {jk} | {tot} |")
+  lines += ["", "## Tuning history (what was tuned, how, on which segments)", ""]
+  T = ROOT / "results" / "tuning"
+  hist = [
+    ("PID+FF (`controllers/pid_ff.py`)", "Nelder-Mead + window grid, 7 parameters", "dev 10000-10199",
+     "scripts/tune_pid_ff.py", "pid_ff.json"),
+    ("MPC + observer (`controllers/mpc.py`)", "hand grid sweeps of steer-rate weight, observer q_d, horizon", "dev 10000-10199",
+     "inline sweeps", "mpc_sweep_10000-10199.json"),
+    ("iLQR (`controllers/ilqr.py`)", "grid sweep of horizon, iterations, steer-rate weight", "dev 10000-10199",
+     "scripts/tune_ilqr.py, run_batch_eval.py", "ilqr_gpu_sweep/"),
+    ("PID+FF strong baseline (`controllers/pid_ff_cma.py`)", "**CMA-ES**, 10 parameters, popsize 12, 60 generations",
+     "dev 10000-10199, check 10200-10499", "scripts/tune_pid_ff_cma.py", "pid_ff_cma.json"),
+    ("variance-aware controllers", "small hand grids", "dev 10000-10199", "scripts/run_batch_eval.py", "variance/"),
+    ("MPC + observer, CMA-ES (`controllers/mpc_cma.py`)", "**CMA-ES**, 13 parameters incl. speed breakpoints",
+     "dev 10500-10999, check 11000-11499", "scripts/tune_mpc_cma.py", "mpc_cma.json"),
+  ]
+  lines += ["| controller | method | tuning segments | script | saved in results/tuning/ |", "|---|---|---|---|---|"]
+  for name, method, segs, script, f in hist:
+    if (T / f).exists():
+      lines.append(f"| {name} | {method} | {segs} | {script} | {f} |")
+  lines += ["", "Before the MPC CMA-ES run, CMA-ES had been used once in this project: for the PID+FF baseline "
+            "(research-optimization branch). The MPC + observer had only been hand-tuned by grid sweeps. "
+            "No parameter search ever used the test segments 00000-04999. One design decision was prompted by a "
+            "test run: the iLQR saturation search (see README, 'The iLQR blow-ups')."]
   (ROOT / "results" / "RESULTS.md").write_text("\n".join(lines) + "\n")
   print("\n".join(lines))
 
