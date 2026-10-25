@@ -9,13 +9,13 @@ Causal steering controllers that use only what `update()` receives. They never t
 | Linear MPC on an identified ARX + Kalman offset observer, hand-tuned | 57.44 | eval.py | 0.43 |
 | same MPC, 13 parameters tuned by CMA-ES | 56.68 | eval.py | 0.15 |
 | iLQR through the TinyPhysics network (expected value), receding horizon | **40.55** | eval.py | 64 |
-| same iLQR, risk-sensitive (exact predicted variance in the cost) | **40.23** | lockstep | 70 |
+| same iLQR, risk-sensitive (exact predicted variance in the cost) | **40.22** | eval.py | 70 |
 | *published, not reproduced:* comma blog, CMA-ES-tuned feedback controller | 48.0 | blog.comma.ai/rlcontrols | |
 | *published, not reproduced:* best PID+FF on the leaderboard | 50.608 | comma.ai/leaderboard | |
 
 ## What the results say
 
-1. **The linear model is the limit, not the tuning.** CMA-ES over 13 MPC and observer parameters (cost weights, horizon, observer noise, speed breakpoints) only moves the linear MPC from 57.44 to 56.68. It finds very different settings that score almost the same, so the objective is flat. Planning through the learned network instead reaches 40.55 (risk-sensitive 40.23).
+1. **The linear model is the limit, not the tuning.** CMA-ES over 13 MPC and observer parameters (cost weights, horizon, observer noise, speed breakpoints) only moves the linear MPC from 57.44 to 56.68. It finds very different settings that score almost the same, so the objective is flat. Planning through the learned network instead reaches 40.55 (risk-sensitive 40.22).
 2. **Preview matters most.** The car responds to steer with about 3 steps (0.3 s) of delay. Feedforward on the planned target takes PID from 110 to the low 60s, and removing preview from the MPC costs about 42 points.
 3. **Most of what remains is the simulator's noise.** With the random token draw replaced by the mean token (analysis only, dev segments), the iLQR's cost falls by 66%. Steering can widen that noise (any steer step does) but barely narrow it. Pricing the exact predicted variance in the iLQR cost gives the small, consistent gain in the table.
 4. **Negative results.** A hybrid MPC on an 8-region piecewise-affine model, solved with a Graphs-of-Convex-Sets relaxation, has a loose relaxation (41% below the exact MIQP optimum). Its rounding is near-optimal (mean 4.7% above). In closed loop it is worse than the linear MPC (median dev segment 53.5 vs 50.7, with blow-ups) and runs at 597 ms per step. An exact expected-cost one-step lookahead fails because of the delay, and MPPI only works with smooth perturbations.

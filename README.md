@@ -16,7 +16,7 @@ through the simulator's own model. Every controller is causal and uses only what
 | Preview MPC on an identified ARX model + Kalman disturbance observer (OSQP or ADMM) | 57.44 / 57.40 |
 | Same MPC, 13 parameters tuned by CMA-ES (research branch) | 56.68 |
 | Receding-horizon iLQR through the TinyPhysics model (expected value) | **40.55** (eval.py; lockstep 40.56) |
-| Same iLQR, risk-sensitive: exact predicted variance in the cost (research branch) | **40.23** (lockstep; eval.py run pending) |
+| Same iLQR, risk-sensitive: exact predicted variance in the cost (research branch) | **40.22** (eval.py; lockstep 40.23) |
 
 The linear MPC beats our strongest PID+FF (60.4) but not the best PID+FF on the leaderboard (50.6). The
 iLQR beats the ~48 of the best feedback-style entries, but it uses the simulator's own

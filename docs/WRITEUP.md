@@ -2,8 +2,8 @@
 
 **Result.** Receding-horizon iLQR through the TinyPhysics model scores **40.55** on the
 official 5000 segments in the unmodified `eval.py` (PID baseline 110.25). A
-risk-sensitive variant that prices the model's predicted variance scores **40.23** (our
-lockstep evaluator; its `eval.py` run is pending). A linear
+risk-sensitive variant that prices the model's predicted variance scores **40.22** in `eval.py`
+(40.23 in our lockstep evaluator). A linear
 preview MPC on an identified model scores **57.44**, and the strongest PID+FF I could tune
 scores 60.41. All controllers are causal and only use what `update()` receives. They
 never touch the RNG or seed, never read the data file, and use the same gains on every
@@ -20,7 +20,7 @@ segment. Tuning used held-out dev segments only. Repo: `<link>`.
 | same, hand-written ADMM (cached Riccati, TinyMPC style) | 0.734 | 20.69 | 57.40 | 0.24 |
 | same MPC, 13 parameters tuned by CMA-ES on dev | 0.737 | 19.81 | 56.68 | 0.15 |
 | iLQR through TinyPhysics (expected value), H = 12 (eval.py) | 0.437 | 18.70 | 40.55 | 64 |
-| same, risk-sensitive (+ exact predicted variance in the cost; lockstep) | 0.433 | 18.56 | **40.23** | 70 |
+| same, risk-sensitive (+ exact predicted variance in the cost; eval.py) | 0.433 | 18.56 | **40.22** | 70 |
 
 **What I did.**
 1. *System ID.* I ported the ONNX model to PyTorch (matches to 4e-6). Finite differences
@@ -120,7 +120,7 @@ solver.
 | iLQR, 10 iterations at engagement (superseded) | 10000-10499 (500) | 0.415 | 18.14 | 38.92 | 38.89 | 54.31 | 40.59 | 40.54 | 64.4 | engagement step 404 ms |
 | iLQR through TinyPhysics (final) | 10000-10499 (500) | 0.415 | 18.13 | 38.89 | 38.89 | 54.31 | 40.56 | 40.55 | 64.1 |  |
 | Risk-sensitive iLQR, 10 iterations at engagement (superseded) | 10000-10499 (500) | 0.412 | 18.03 | 38.65 | 38.89 | 54.31 | 40.23 |  | 71.9 | engagement step 473 ms |
-| Risk-sensitive iLQR (+1.5 sigma^2, exact) | 10000-10499 (500) | 0.412 | 18.04 | 38.64 | 38.89 | 54.31 | 40.23 |  | 69.6 |  |
+| Risk-sensitive iLQR (+1.5 sigma^2, exact) | 10000-10499 (500) | 0.412 | 18.04 | 38.64 | 38.89 | 54.31 | 40.23 | 40.22 | 69.6 |  |
 | Expected-cost lookahead, one step (d=0) | 10000-10199 (200) | 226.999 | 61.99 | 11411.94 | 36.80 | 48.91 |  |  |  | negative result |
 | Expected-cost lookahead over the delay (d=3) | 10000-10199 (200) | 6.038 | 24.13 | 326.05 | 36.80 | 48.91 |  |  | 68.4 | negative result |
 | MPPI, independent per-step perturbations | 10000-10199 (200) | 31.680 | 64.82 | 1648.79 | 36.80 | 48.91 |  |  |  | negative result |

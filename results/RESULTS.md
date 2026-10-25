@@ -44,6 +44,8 @@ Parsed from `results/reports/report_<test>_vs_<baseline>_<n>.html` (unmodified e
 |---|---|---:|---:|---:|
 | report_ilqr_engage10_vs_pid_5000.html | pid | 1.695 | 25.490 | 110.254 |
 | report_ilqr_engage10_vs_pid_5000.html | ilqr_engage10 | 0.437 | 18.698 | 40.540 |
+| report_ilqr_rs_vs_pid_5000.html | pid | 1.695 | 25.490 | 110.254 |
+| report_ilqr_rs_vs_pid_5000.html | ilqr_rs | 0.433 | 18.561 | 40.222 |
 | report_ilqr_vs_pid_5000.html | pid | 1.695 | 25.490 | 110.254 |
 | report_ilqr_vs_pid_5000.html | ilqr | 0.437 | 18.697 | 40.550 |
 | report_mpc_cma_vs_pid_5000.html | pid | 1.695 | 25.490 | 110.254 |
