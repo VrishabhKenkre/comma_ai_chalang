@@ -40,7 +40,7 @@ CMA-ES candidate kept: `cma_mean` (the better of best-evaluated and CMA-ES mean 
 | CMA-ES MPC + observer | 56.68 | 0.15 | this run |
 | hand-tuned MPC + observer | 57.44 | 0.43 | results/runs |
 | iLQR through TinyPhysics | 40.56 | 64.1 | results/runs |
-| PID+FF, CMA-ES (ours) | 60.41 | 0.022 | results/runs |
+| PID+FF, CMA-ES (mine) | 60.41 | 0.022 | results/runs |
 | comma blog, CMA-ES-tuned custom feedback controller | 48.0 | | blog.comma.ai/rlcontrols (not reproduced) |
 | leaderboard best PID+FF | 50.608 | | comma.ai/leaderboard (not reproduced) |
 

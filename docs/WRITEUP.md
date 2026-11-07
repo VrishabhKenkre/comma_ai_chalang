@@ -3,7 +3,7 @@
 **Result.** Receding-horizon iLQR through the TinyPhysics model scores **40.55** on the
 official 5000 segments in the unmodified `eval.py` (PID baseline 110.25). A
 risk-sensitive variant that prices the model's predicted variance scores **40.22** in `eval.py`
-(40.23 in our lockstep evaluator). A linear
+(40.23 in my lockstep evaluator). A linear
 preview MPC on an identified model scores **57.44**, and the strongest PID+FF I could tune
 scores 60.41. All controllers are causal and only use what `update()` receives. They
 never touch the RNG or seed, never read the data file, and use the same gains on every

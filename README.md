@@ -18,7 +18,7 @@ through the simulator's own model. Every controller is causal and uses only what
 | Receding-horizon iLQR through the TinyPhysics model (expected value) | **40.55** (eval.py; lockstep 40.56) |
 | Same iLQR, risk-sensitive: exact predicted variance in the cost (research branch) | **40.22** (eval.py; lockstep 40.23) |
 
-The linear MPC beats our strongest PID+FF (60.4) but not the best PID+FF on the leaderboard (50.6). The
+The linear MPC beats my strongest PID+FF (60.4) but not the best PID+FF on the leaderboard (50.6). The
 iLQR beats the ~48 of the best feedback-style entries, but it uses the simulator's own
 network as its model (see "Leaderboard context"). Its first test run scored **58.19**
 because of two saturation blow-ups. The fix was designed on non-test data, and only 7 of the
@@ -27,7 +27,7 @@ because of two saturation blow-ups. The fix was designed on non-test data, and o
 ## Honesty rules
 
 These are deliberate constraints. The top of the leaderboard (6.88, "per segment direct
-quadratic optimization") breaks them; we do not.
+quadratic optimization") breaks them; I do not.
 
 1. The controller uses only what `update()` receives each step: `target_lataccel`,
    `current_lataccel`, `state` (roll, v_ego, a_ego) and `future_plan`, plus its own memory
@@ -38,7 +38,7 @@ quadratic optimization") breaks them; we do not.
 4. Never tune per segment. Every gain is global, chosen once.
 5. Never compute the offline optimum of the score.
 
-Additional rules we followed so the numbers mean what they say:
+Additional rules I followed so the numbers mean what they say:
 
 - **Train / dev / test split.** Tuning used dev segments 10000-10199 (reported dev
   numbers on 10000-10499). System identification used 15000-15399. The test set
@@ -110,7 +110,7 @@ Dev set (10000-10499) for the same controllers: PID 110.52, PID+FF 61.05, PID+FF
 MPC without observer 96.15, MPC 54.31, MPC-ADMM 54.30, iLQR 38.89.
 
 Official `eval.py` reports are in `results/reports/` (all on the 5000 test segments, baseline PID).
-For PID (110.254), MPC (57.437), CMA-ES MPC (56.683) and CMA-ES PID+FF (60.415) they match our
+For PID (110.254), MPC (57.437), CMA-ES MPC (56.683) and CMA-ES PID+FF (60.415) they match my
 `run_eval.py` runs exactly. For the iLQR, `eval.py` runs the same controller per segment on CPU:
 **40.550** for the final version, against 40.559 from the lockstep GPU evaluator. The version
 before the latency fix scored 40.540, against 40.587 lockstep. The small differences are
@@ -151,7 +151,7 @@ Notes on the table:
    scores 64, against 110 for PID.
    Removing the preview from the model-based controller (LQR) costs ~42 points.
 2. **The better the controller, the more of its cost is the simulator's sampling noise.**
-   On dev segments 10000-10099 we replaced the random token draw by the token nearest the
+   On dev segments 10000-10099 I replaced the random token draw by the token nearest the
    mean. This was an analysis-only plant, `results/noise_floor.json`. PID+FF drops from 58.9
    to 40.9, MPC from 47.7 to 27.2 and iLQR from 36.8 to 12.7. So 31%, 43% and 66% of their
    cost comes from the noise.
@@ -160,11 +160,11 @@ Notes on the table:
    0.5-1 it has 0.095 (`results/sysid/SYSID.md`). With a small steer-rate weight (0.1) the MPC
    is unstable (421 on dev, `results/tuning/mpc_rate_ablation.json`), so it needs a large
    weight. Closed-loop re-identification lowered the error in the MPC regime (0.095 -> 0.074)
-   but did not improve the best setting. The linear MPC ends at 57.4. That is better than our
+   but did not improve the best setting. The linear MPC ends at 57.4. That is better than my
    PID+FF (63.6) but not better than the best PID+FF on the leaderboard (50.6).
 4. **The observer must be parametrized as an output offset.** With the ARX's ~0.95
    autoregressive coefficient, a bias placed inside the ARX equation acts 1/(1 - 0.95) ≈ 20x
-   in steady state. In our first implementation that made the closed loop unstable (a
+   in steady state. In my first implementation that made the closed loop unstable (a
    development run, not kept). As an output offset it is the single most valuable addition
    to the MPC (99.5 -> 57.4 on test).
 5. **With the simulator's own (mean) model, iLQR is much better.** It scores 40.55 on test
@@ -205,7 +205,7 @@ used CMA-ES to tune "6 parameters of a custom feedback controller" and reports a
 used dev 10000-10199. The final pick (the CMA-ES mean) was made on dev 10200-10499, which
 the search never saw: 61.06 there, against 64.57 for the start point. Results: dev 58.12,
 test **60.41** (vs 63.64). That is about 10 points behind the leaderboard's best PID+FF
-(50.6, "PID w FF"). We do not know that entry's structure, so we cannot say what it does
+(50.6, "PID w FF"). I do not know that entry's structure, so I cannot say what it does
 differently.
 
 ### 3. System identification (`scripts/sysid.py`, [results/sysid/SYSID.md](results/sysid/SYSID.md))
@@ -248,11 +248,11 @@ correction `k` to the roll -> lataccel gain, both random walks; measurement row
   one batch.
 - **Token gradients:** past lataccel enters as a discrete token. Interpolating embeddings
   gives a gradient that is noisy (learned embeddings are not smooth between bins: RMSE 0.73
-  vs finite differences for the lag-1 derivative). We use the embedding slope over +-3
+  vs finite differences for the lag-1 derivative). I use the embedding slope over +-3
   bins for the backward pass only (RMSE 0.12).
 - **Saturation search:** iLQR is local. When lataccel is pinned at the +-5 token limit the
   expected value is flat in steer and the controller could lock at full steer. When the warm
-  start is saturated we also roll out the plan shifted by +-0.1 and +-0.3 and start from the
+  start is saturated I also roll out the plan shifted by +-0.1 and +-0.3 and start from the
   best. See "The iLQR blow-ups" below.
 - **Lockstep evaluator** (`ctrl/batch_eval.py`): runs all segments side by side so the
   controller can be batched on the GPU. It mirrors `tinyphysics.py` line by line, batches
@@ -260,7 +260,7 @@ correction `k` to the roll -> lataccel gain, both random walks; measurement row
   `RandomState` seeded like the official one. `scripts/verify_batch_eval.py` checks
   per-segment costs against the official runs. All 1,500 segments checked (PID, PID+FF and
   MPC on dev 10000-10499) match **bit for bit** (`results/batch_eval_verification.json`).
-  We also compared the batched GPU iLQR with the same controller run per segment on CPU in
+  I also compared the batched GPU iLQR with the same controller run per segment on CPU in
   the official harness, on dev 10000-10099: 37.53 vs 37.59
   (`results/tuning/ilqr_gpu_sweep/`, `results/tuning/ilqr_sweep.json`). They agree only
   statistically: GPU and CPU floats differ slightly, which can flip a later token draw.
@@ -270,7 +270,7 @@ correction `k` to the roll -> lataccel gain, both random walks; measurement row
   03817 scored 84,143 and 01545 scored 4,195; MPC scored 950 and 1,162 on them. Without
   those two the mean was 40.54.
 - Both segments ask for very large lateral acceleration (|target| up to 4.3 and 3.9 m/s^2,
-  top 1% of segments). We built a **stress set from non-test segments** with
+  top 1% of segments). I built a **stress set from non-test segments** with
   max |target| >= 3.5 (163 segments, `results/stress/stress_segs.txt`) and reproduced the
   failure there. On segments such as 10846 and 15774 the iLQR stayed at full steer and
   +5 m/s^2 for 60-120 steps while the target was mostly below that. At the token limit the
@@ -281,7 +281,7 @@ correction `k` to the roll -> lataccel gain, both random walks; measurement row
   shifted by +-0.1 and +-0.3. Stress set mean: 160.5 -> 118.1. Dev 10000-10199: 36.74 ->
   36.86, unchanged within noise. The ungated version, which always tries the shifts, cost
   1.2 points on dev and was rejected.
-- We then re-ran the test set once: 40.59 (the version before the latency fix, `ilqr_engage10`). Only 7 of the 5000 segments changed. 03817 went
+- I then re-ran the test set once: 40.59 (the version before the latency fix, `ilqr_engage10`). Only 7 of the 5000 segments changed. 03817 went
   84,143 -> 175 and 01545 went 4,195 -> 90; the other 4,993 are bit-identical.
 - Caveat: the failure was *discovered* on the test set, so for this one design decision the
   test set was not untouched. The fix is generic (it only acts at saturation) and was
@@ -299,7 +299,7 @@ About two thirds of the iLQR's cost is the simulator's sampling noise. So the fi
 question was whether steering can make the predicted distribution narrower.
 
 - **Measurement (`scripts/variance_vs_action.py`).** At 10,000 operating points from the iLQR's
-  own dev runs, we held the past fixed and changed the steer from step t on by delta. Then we
+  own dev runs, I held the past fixed and changed the steer from step t on by delta. Then I
   read the std and entropy of the predicted distribution over the 1024 bins, 0-4 steps ahead.
   The spread is **V-shaped in the steer change**. It is lowest when the steer is held and grows
   fast with any step: two steps later the std is about 1.4x larger after a 0.1 step and about 4x larger after a 0.3 step. y(t) itself does not
@@ -307,7 +307,7 @@ question was whether steering can make the predicted distribution narrower.
   iLQR's own smooth steering, the best achievable variance reduction is only 2-4% on average
   (median 0%).
 - **Risk-sensitive iLQR (`controllers/ilqr_rs.py`).** The iLQR's planned cost now includes
-  1.5 * sigma_k^2 per step, with sigma_k the model's exact predicted std. In our units that
+  1.5 * sigma_k^2 per step, with sigma_k the model's exact predicted std. In my units that
   makes each step's cost the exact one-step expectation of the score; 1.5 is not a tuned
   weight. sigma enters the Gauss-Newton backward pass as a least-squares residual, with its
   gradient from autograd. Result: dev 500 **-0.25 +- 0.06**, test 5000 **-0.33 +- 0.03**
@@ -349,10 +349,10 @@ Details: [results/hybrid/HYBRID.md](results/hybrid/HYBRID.md).
 - **Closed loop (32 dev segments).** It is worse than the linear MPC: median segment +2.5,
   worse on 27 of 32 segments, and the mean is 318 because of blow-ups (one segment at 8,436).
   On that segment the steer sat on one of the tree's steer thresholds (u = -0.830) for 162 of
-  400 scored steps while the error stayed above 1 m/s^2. Our reading is that the
+  400 scored steps while the error stayed above 1 m/s^2. My reading is that the
   discontinuities between neighbouring affine models create spurious optima on region
-  boundaries. A continuous PWA model would test this; we did not build one. Getting there
-  needed two bug fixes in our own controller (history bounds and a failure fallback), checked
+  boundaries. A continuous PWA model would test this; I did not build one. Getting there
+  needed two bug fixes in my own controller (history bounds and a failure fallback), checked
   by giving the hybrid code the linear MPC's own model: 49.41 vs 49.47.
 - **Speed.** 597 ms per step on one thread, 6x over the 100 ms budget. No test run: about 400
   CPU-hours, and not competitive on dev.
@@ -390,7 +390,7 @@ this, CMA-ES had only been used for the PID+FF baseline (see the tuning history 
 ## Leaderboard context
 
 From [comma.ai/leaderboard](https://comma.ai/leaderboard) (archived challenge, read
-2026-10-23). We only know the method labels, not how each entry was evaluated.
+2026-10-23). I only know the method labels, not how each entry was evaluated.
 
 | score | method label | comparable? |
 |---:|---|---|
@@ -404,8 +404,8 @@ From [comma.ai/leaderboard](https://comma.ai/leaderboard) (archived challenge, r
 | 50.608 | PID w FF | best PID+FF |
 | 110.254 | PID (baseline) | reproduced exactly |
 
-Our linear MPC (57.4) does not beat the best feedback controllers or the best PID+FF.
-Our iLQR (40.55 in eval.py) belongs with the model-in-the-loop MPC entries (33.6-44.3): it is inside
+My linear MPC (57.4) does not beat the best feedback controllers or the best PID+FF.
+My iLQR (40.55 in eval.py) belongs with the model-in-the-loop MPC entries (33.6-44.3): it is inside
 that range, not at the top of it. It does beat the ~48 of the best feedback-style entries
 and the 50.6 of the best PID+FF, but it knows more than they do (the exact mean model).
 
@@ -427,7 +427,7 @@ and the 50.6 of the best PID+FF, but it knows more than they do (the exact mean 
   controllers, 32 for the hybrid MPC). Each row in `results/ABLATION.md` is compared with
   iLQR and linear MPC on the same segments. Only the final methods were run on test. The
   hybrid MPC was not, because it is too slow (about 400 CPU-hours) and not competitive on dev.
-- The PWA model is discontinuous at region boundaries. We did not try a continuous one, which
+- The PWA model is discontinuous at region boundaries. I did not try a continuous one, which
   is the obvious next experiment for the hybrid MPC.
 
 ## Repository layout

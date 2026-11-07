@@ -23,7 +23,7 @@ Causal steering controllers that use only what `update()` receives. They never t
 
 ## Evaluators and caveats
 
-- `eval.py`: the challenge's own script, one process per segment. `run_eval.py`: our per-segment runner around the same `tinyphysics.run_rollout`; it reproduces eval.py exactly for PID and MPC. `lockstep`: a batched GPU evaluator that reproduces official per-segment costs bit for bit for PID, PID+FF and MPC on 1,500 dev segments. For the iLQR it matches only statistically (lockstep test: 40.56 iLQR, 40.23 risk-sensitive).
+- `eval.py`: the challenge's own script, one process per segment. `run_eval.py`: my per-segment runner around the same `tinyphysics.run_rollout`; it reproduces eval.py exactly for PID and MPC. `lockstep`: a batched GPU evaluator that reproduces official per-segment costs bit for bit for PID, PID+FF and MPC on 1,500 dev segments. For the iLQR it matches only statistically (lockstep test: 40.56 iLQR, 40.23 risk-sensitive).
 - The iLQR plans with the simulator's own network, so it has a perfect *mean* model. That puts it with the leaderboard's model-based MPC entries (33.6-44.3), not with feedback controllers. On a car the model would be learned and imperfect.
 - One design decision was prompted by a test run: the iLQR's first test run (58.19) had two saturation blow-ups. The fix was designed and validated on non-test data and is disclosed in the README.
 - Timings are on a desktop CPU (Ryzen 9 9950X), not a comma device.
